@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ProjectTypeScreen } from './screens/ProjectTypeScreen'
+import { ScopeScreen } from './screens/ScopeScreen'
 import type { FlowState } from './types/flow'
 
 function App() {
@@ -11,16 +12,19 @@ function App() {
     setStep(prev => prev + 1)
   }
 
-  // Screens 2–14 will be routed here as they are built
   if (step === 1) {
     return <ProjectTypeScreen initialState={flowState} onNext={handleNext} />
   }
 
-  // Placeholder until next screen exists
+  if (step === 2) {
+    return <ScopeScreen initialState={flowState} onNext={handleNext} />
+  }
+
+  // Placeholder until screens 3–14 are built
   return (
     <div style={{ background: '#131313', color: '#e5e2e1', minHeight: '100svh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif' }}>
       <p style={{ opacity: 0.4, fontSize: 14, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-        Screen {step} — в разработке
+        Шаг {step} — в разработке
       </p>
     </div>
   )
