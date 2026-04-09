@@ -1,6 +1,9 @@
 export type ProjectType = 'new_build' | 'resale' | 'commercial'
 
+export type Scope = 'full' | 'partial' | 'design_only'
+
 export interface FlowState {
   projectType?: ProjectType
-  // screens 2–14 will extend this interface
+  scope?: Scope
+  // screens 3–14 will extend this interface
 }
