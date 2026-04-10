@@ -122,10 +122,10 @@ export function ConceptsScreen({ initialState, onNext }: Props) {
   const [retryFailed, setRetryFailed] = useState(false)
   const [debugInfo, setDebugInfo] = useState<GenerationDebug | undefined>(undefined)
 
-  // All images failed (or none came through) — show retry button
-  const allFailed =
-    conceptImages !== undefined &&
-    conceptImages.every(img => img.url === null)
+  // Show error banner whenever no real image URL exists:
+  // covers undefined (network failure before ProcessingScreen passed data),
+  // empty array, and all-null arrays (API returned errors for every concept).
+  const shouldShowErrorBanner = !conceptImages?.some(img => img.url !== null)
 
   const handleRetry = async () => {
     setIsRetrying(true)
@@ -154,24 +154,37 @@ export function ConceptsScreen({ initialState, onNext }: Props) {
           <p className={styles.description}>Выберите направление, которое ближе всего</p>
         </div>
 
-        {/* Retry notice — shown only if all images failed */}
-        {allFailed && (
+        {/* Error banner — shown whenever no real image URL exists */}
+        {shouldShowErrorBanner && (
           <div className={styles.retryBanner} role="alert">
-            <span className={styles.retryBannerText}>
-              {retryFailed
-                ? 'Не удалось загрузить изображения — показаны цветовые схемы'
-                : 'Изображения не загрузились'}
-            </span>
-            {import.meta.env.DEV && debugInfo && (
-              <span style={{ fontSize: 11, color: '#e9c176', fontFamily: 'monospace', display: 'block', marginTop: 4 }}>
-                [{debugInfo.model}] {debugInfo.statuses.join(',')} — {debugInfo.reasons.join(' | ')}
+            <div style={{ flex: 1 }}>
+              <span className={styles.retryBannerText}>
+                {retryFailed
+                  ? 'Не удалось загрузить изображения — показаны цветовые схемы'
+                  : 'Изображения не загрузились'}
               </span>
-            )}
+              {/* Always show причина; cascade: debugSummary → image error → reason[0] → fallback */}
+              <div style={{ marginTop: 6 }}>
+                <span style={{ display: 'block', fontSize: 12, color: '#e9c176' }}>
+                  Причина:{' '}
+                  {debugInfo?.debugSummary
+                    ?? conceptImages?.find(i => i.error)?.error
+                    ?? debugInfo?.reasons?.[0]
+                    ?? 'Неизвестная причина (проверь API response)'}
+                </span>
+                {debugInfo && (
+                  <span style={{ display: 'block', fontSize: 10, color: 'rgba(209,197,180,0.5)', fontFamily: 'monospace', marginTop: 2 }}>
+                    [{debugInfo.model}] {debugInfo.statuses.join(',')} | {debugInfo.reasons[0]}
+                  </span>
+                )}
+              </div>
+            </div>
             {!retryFailed && (
               <button
                 className={styles.retryBtn}
                 onClick={handleRetry}
                 disabled={isRetrying}
+                style={{ alignSelf: 'flex-start' }}
               >
                 {isRetrying ? 'Загружаем…' : 'Повторить'}
               </button>

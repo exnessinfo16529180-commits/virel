@@ -5,7 +5,11 @@
  * The GOOGLE_API_KEY is kept server-side and never exposed to the client.
  *
  * Request body:  { prompts: [string, string, string] }
- * Response body: { images: ConceptImage[], debug: { model, statuses, reasons } }
+ * Response body: {
+ *   images: ConceptImage[],
+ *   debug: { model, statuses, reasons, timestamp },
+ *   debugSummary?: string   ← present only when all images failed
+ * }
  */
 
 const MODEL = 'imagen-3.0-fast-generate-001'
@@ -13,9 +17,21 @@ const CONCEPT_IDS = ['concept_a', 'concept_b', 'concept_c']
 const IMAGEN_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:predict`
 
-/**
- * @returns {{ url: string, upstreamStatus: number, reason: string }}
- */
+/** Produce a single human-readable cause line from collected statuses/reasons. */
+function buildDebugSummary(statuses, reasons) {
+  const status  = statuses[0]
+  const reason  = reasons.find(r => r && r !== 'ok') ?? reasons[0] ?? 'unknown'
+  if (status === 403) return `Permission denied (403) — check API key or Imagen access`
+  if (status === 401) return `Unauthorized (401) — API key missing or invalid`
+  if (status === 400) return `Bad request (400) — ${reason}`
+  if (status === 404) return `Model not found (404) — ${reason}`
+  if (status === 429) return `Quota exceeded (429) — rate limit reached`
+  if (status === 500) return `Google internal error (500) — ${reason}`
+  if (status === 'fetch-error') return `Network error — ${reason}`
+  return `HTTP ${status} — ${reason}`
+}
+
+/** @returns {{ url: string, upstreamStatus: number, reason: string }} */
 async function generateOne(prompt, apiKey) {
   const upstream = await fetch(IMAGEN_URL, {
     method: 'POST',
@@ -34,8 +50,6 @@ async function generateOne(prompt, apiKey) {
   })
 
   const upstreamStatus = upstream.status
-
-  // Read as text first so we can log the raw body on failure
   const rawText = await upstream.text()
 
   let data
@@ -47,7 +61,6 @@ async function generateOne(prompt, apiKey) {
     throw Object.assign(new Error(`Non-JSON response: ${snippet}`), { upstreamStatus })
   }
 
-  // Log key fields regardless of outcome
   const hasPredictions = Array.isArray(data.predictions) && data.predictions.length > 0
   const hasBytes = hasPredictions && Boolean(data.predictions[0]?.bytesBase64Encoded)
   console.log(
@@ -66,13 +79,13 @@ async function generateOne(prompt, apiKey) {
   const prediction = data.predictions?.[0]
   if (!prediction?.bytesBase64Encoded) {
     const reason = prediction?.raiFilteredReason ?? 'bytesBase64Encoded missing'
-    console.error(`[generate-concepts] no image bytes — reason: ${reason}`)
+    console.error(`[generate-concepts] no bytes — reason: ${reason}`)
     console.error(`[generate-concepts] prediction keys: ${Object.keys(prediction ?? {}).join(', ')}`)
     throw Object.assign(new Error(reason), { upstreamStatus })
   }
 
   const mime = prediction.mimeType ?? 'image/jpeg'
-  console.log(`[generate-concepts] OK — mime=${mime} bytes=${prediction.bytesBase64Encoded.length}`)
+  console.log(`[generate-concepts] OK mime=${mime} len=${prediction.bytesBase64Encoded.length}`)
   return { url: `data:${mime};base64,${prediction.bytesBase64Encoded}`, upstreamStatus, reason: 'ok' }
 }
 
@@ -114,8 +127,17 @@ export default async function handler(req, res) {
     }),
   )
 
+  const allFailed = images.every(img => img.url === null)
+  const debug = {
+    model:     MODEL,
+    statuses:  debugStatuses,
+    reasons:   debugReasons,
+    timestamp: new Date().toISOString(),
+  }
+
   res.status(200).json({
     images,
-    debug: { model: MODEL, statuses: debugStatuses, reasons: debugReasons },
+    debug,
+    ...(allFailed ? { debugSummary: buildDebugSummary(debugStatuses, debugReasons) } : {}),
   })
 }
