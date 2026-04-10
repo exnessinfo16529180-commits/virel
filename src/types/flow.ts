@@ -26,5 +26,7 @@ export interface FlowState {
   palette?: Palette
   style?: InteriorStyle
   budgetRange?: BudgetRange
-  // screens 8–14 will extend this interface
+  processingStage?: 0 | 1 | 2 | 3 | 4
+  processingDone?: boolean
+  // screens 9–14 will extend this interface
 }
