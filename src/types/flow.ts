@@ -29,5 +29,12 @@ export interface FlowState {
   processingStage?: 0 | 1 | 2 | 3 | 4
   processingDone?: boolean
   selectedConcept?: 'concept_a' | 'concept_b' | 'concept_c'
-  // screens 10–14 will extend this interface
+  estimate?: {
+    works: number
+    materials: number
+    design: number
+    reserve: number
+    total: number
+  }
+  // screens 11–14 will extend this interface
 }
