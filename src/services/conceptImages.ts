@@ -69,9 +69,16 @@ async function fetchWithTimeout(url: string, init: RequestInit, ms: number): Pro
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
+export interface GenerationDebug {
+  model: string
+  statuses: (number | string)[]
+  reasons: string[]
+}
+
 export interface GenerationResult {
   images: ConceptImage[]
   allFailed: boolean
+  debug?: GenerationDebug
 }
 
 /**
@@ -108,10 +115,10 @@ export async function generateConceptImages(
       throw new Error(`API responded ${res.status}`)
     }
 
-    const data = await res.json() as { images: ConceptImage[] }
+    const data = await res.json() as { images: ConceptImage[]; debug?: GenerationDebug }
     const allFailed = data.images.every(img => img.url === null)
 
-    return { images: data.images, allFailed }
+    return { images: data.images, allFailed, debug: data.debug }
   } catch (err) {
     // One automatic retry on failure
     if (retryCount < 1) {
