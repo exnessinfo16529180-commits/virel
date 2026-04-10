@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import type { FlowState } from '../types/flow'
+import type { FlowState, ConceptImage } from '../types/flow'
+import { generateConceptImages } from '../services/conceptImages'
 import styles from './ConceptsScreen.module.css'
 
 interface Props {
@@ -9,7 +10,7 @@ interface Props {
 
 type ConceptId = 'concept_a' | 'concept_b' | 'concept_c'
 
-interface Concept {
+interface ConceptMeta {
   id: ConceptId
   code: string
   title: string
@@ -18,7 +19,7 @@ interface Concept {
   previewClass: string
 }
 
-const CONCEPTS: Concept[] = [
+const CONCEPTS: ConceptMeta[] = [
   {
     id: 'concept_a',
     code: 'Концепт A',
@@ -45,6 +46,13 @@ const CONCEPTS: Concept[] = [
   },
 ]
 
+function imageForConcept(
+  conceptId: ConceptId,
+  images: ConceptImage[] | undefined,
+): ConceptImage | null {
+  return images?.find(img => img.conceptId === conceptId) ?? null
+}
+
 function CheckBadge() {
   return (
     <div className={styles.badge} aria-hidden="true">
@@ -62,10 +70,74 @@ function CheckBadge() {
   )
 }
 
+// ── Image preview with loading skeleton and gradient fallback ─────────────────
+
+interface PreviewProps {
+  image: ConceptImage | null
+  fallbackClass: string
+  isRetrying: boolean
+}
+
+function ConceptPreview({ image, fallbackClass, isRetrying }: PreviewProps) {
+  const [imgLoaded, setImgLoaded] = useState(false)
+  const [imgError, setImgError] = useState(false)
+
+  const showReal = image?.url && !imgError && !isRetrying
+
+  return (
+    <div className={`${styles.preview} ${!showReal ? fallbackClass : ''}`}>
+      {showReal && (
+        <>
+          {!imgLoaded && <div className={styles.imgSkeleton} aria-hidden="true" />}
+          <img
+            src={image.url!}
+            alt=""
+            className={`${styles.img} ${imgLoaded ? styles.imgVisible : ''}`}
+            onLoad={() => setImgLoaded(true)}
+            onError={() => setImgError(true)}
+            draggable={false}
+          />
+        </>
+      )}
+      {isRetrying && (
+        <div className={styles.retryOverlay} aria-hidden="true">
+          <span className={styles.retryPulse} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Screen ────────────────────────────────────────────────────────────────────
+
 export function ConceptsScreen({ initialState, onNext }: Props) {
   const [selected, setSelected] = useState<ConceptId | undefined>(
     initialState?.selectedConcept,
   )
+  const [conceptImages, setConceptImages] = useState<ConceptImage[] | undefined>(
+    initialState?.conceptImages,
+  )
+  const [isRetrying, setIsRetrying] = useState(false)
+  const [retryFailed, setRetryFailed] = useState(false)
+
+  // All images failed (or none came through) — show retry button
+  const allFailed =
+    conceptImages !== undefined &&
+    conceptImages.every(img => img.url === null)
+
+  const handleRetry = async () => {
+    setIsRetrying(true)
+    setRetryFailed(false)
+    try {
+      const result = await generateConceptImages(initialState ?? {})
+      setConceptImages(result.images)
+      if (result.allFailed) setRetryFailed(true)
+    } catch {
+      setRetryFailed(true)
+    } finally {
+      setIsRetrying(false)
+    }
+  }
 
   return (
     <div className={styles.root}>
@@ -79,6 +151,26 @@ export function ConceptsScreen({ initialState, onNext }: Props) {
           <p className={styles.description}>Выберите направление, которое ближе всего</p>
         </div>
 
+        {/* Retry notice — shown only if all images failed */}
+        {allFailed && (
+          <div className={styles.retryBanner} role="alert">
+            <span className={styles.retryBannerText}>
+              {retryFailed
+                ? 'Не удалось загрузить изображения — показаны цветовые схемы'
+                : 'Изображения не загрузились'}
+            </span>
+            {!retryFailed && (
+              <button
+                className={styles.retryBtn}
+                onClick={handleRetry}
+                disabled={isRetrying}
+              >
+                {isRetrying ? 'Загружаем…' : 'Повторить'}
+              </button>
+            )}
+          </div>
+        )}
+
         <div
           className={styles.cards}
           role="group"
@@ -86,6 +178,7 @@ export function ConceptsScreen({ initialState, onNext }: Props) {
         >
           {CONCEPTS.map(({ id, code, title, description, tags, previewClass }) => {
             const isSelected = selected === id
+            const image = imageForConcept(id, conceptImages)
             return (
               <button
                 key={id}
@@ -93,8 +186,13 @@ export function ConceptsScreen({ initialState, onNext }: Props) {
                 onClick={() => setSelected(id)}
                 aria-pressed={isSelected}
               >
-                {/* Preview */}
-                <div className={`${styles.preview} ${previewClass}`}>
+                {/* Preview: real image or gradient fallback */}
+                <div className={styles.previewWrap}>
+                  <ConceptPreview
+                    image={image}
+                    fallbackClass={previewClass}
+                    isRetrying={isRetrying}
+                  />
                   {isSelected && <CheckBadge />}
                 </div>
 
@@ -121,7 +219,10 @@ export function ConceptsScreen({ initialState, onNext }: Props) {
         <button
           className={styles.cta}
           disabled={!selected}
-          onClick={() => selected && onNext({ selectedConcept: selected })}
+          onClick={() =>
+            selected &&
+            onNext({ selectedConcept: selected, conceptImages })
+          }
         >
           Продолжить
         </button>

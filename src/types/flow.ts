@@ -1,3 +1,9 @@
+export interface ConceptImage {
+  conceptId: 'concept_a' | 'concept_b' | 'concept_c'
+  url: string | null
+  error: string | null
+}
+
 export type ProjectType = 'new_build' | 'resale' | 'commercial'
 
 export type Scope = 'full' | 'partial' | 'design_only'
@@ -38,6 +44,7 @@ export interface FlowState {
   }
   materialsPackage?: 'basic' | 'optimal' | 'premium'
   teamPackage?: 'econom' | 'balanced' | 'premium'
+  conceptImages?: ConceptImage[]
   consentAccepted?: boolean
   projectLaunched?: boolean
 }
