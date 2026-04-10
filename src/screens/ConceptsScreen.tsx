@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FlowState, ConceptImage } from '../types/flow'
 import { generateConceptImages } from '../services/conceptImages'
+import type { GenerationDebug } from '../services/conceptImages'
 import styles from './ConceptsScreen.module.css'
 
 interface Props {
@@ -119,6 +120,7 @@ export function ConceptsScreen({ initialState, onNext }: Props) {
   )
   const [isRetrying, setIsRetrying] = useState(false)
   const [retryFailed, setRetryFailed] = useState(false)
+  const [debugInfo, setDebugInfo] = useState<GenerationDebug | undefined>(undefined)
 
   // All images failed (or none came through) — show retry button
   const allFailed =
@@ -131,6 +133,7 @@ export function ConceptsScreen({ initialState, onNext }: Props) {
     try {
       const result = await generateConceptImages(initialState ?? {})
       setConceptImages(result.images)
+      if (result.debug) setDebugInfo(result.debug)
       if (result.allFailed) setRetryFailed(true)
     } catch {
       setRetryFailed(true)
@@ -159,6 +162,11 @@ export function ConceptsScreen({ initialState, onNext }: Props) {
                 ? 'Не удалось загрузить изображения — показаны цветовые схемы'
                 : 'Изображения не загрузились'}
             </span>
+            {import.meta.env.DEV && debugInfo && (
+              <span style={{ fontSize: 11, color: '#e9c176', fontFamily: 'monospace', display: 'block', marginTop: 4 }}>
+                [{debugInfo.model}] {debugInfo.statuses.join(',')} — {debugInfo.reasons.join(' | ')}
+              </span>
+            )}
             {!retryFailed && (
               <button
                 className={styles.retryBtn}
