@@ -12,6 +12,7 @@ import { EstimateScreen } from './screens/EstimateScreen'
 import { MaterialsScreen } from './screens/MaterialsScreen'
 import { TeamScreen } from './screens/TeamScreen'
 import { SummaryScreen } from './screens/SummaryScreen'
+import { ContractScreen } from './screens/ContractScreen'
 import type { FlowState } from './types/flow'
 
 function App() {
@@ -75,14 +76,8 @@ function App() {
     return <SummaryScreen initialState={flowState} onNext={handleNext} />
   }
 
-  // Placeholder until screen 14 is built
-  return (
-    <div style={{ background: '#131313', color: '#e5e2e1', minHeight: '100svh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif' }}>
-      <p style={{ opacity: 0.4, fontSize: 14, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-        Шаг {step} — в разработке
-      </p>
-    </div>
-  )
+  // step === 14 is the terminal screen — ContractScreen handles its own success state
+  return <ContractScreen initialState={flowState} onNext={handleNext} />
 }
 
 export default App
