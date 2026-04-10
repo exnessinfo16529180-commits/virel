@@ -5,6 +5,7 @@ import { LayoutScreen } from './screens/LayoutScreen'
 import { AtmosphereScreen } from './screens/AtmosphereScreen'
 import { PaletteScreen } from './screens/PaletteScreen'
 import { StyleScreen } from './screens/StyleScreen'
+import { BudgetScreen } from './screens/BudgetScreen'
 import type { FlowState } from './types/flow'
 
 function App() {
@@ -40,7 +41,11 @@ function App() {
     return <StyleScreen initialState={flowState} onNext={handleNext} />
   }
 
-  // Placeholder until screens 7–14 are built
+  if (step === 7) {
+    return <BudgetScreen initialState={flowState} onNext={handleNext} />
+  }
+
+  // Placeholder until screens 8–14 are built
   return (
     <div style={{ background: '#131313', color: '#e5e2e1', minHeight: '100svh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif' }}>
       <p style={{ opacity: 0.4, fontSize: 14, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
