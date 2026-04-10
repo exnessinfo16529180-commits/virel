@@ -28,5 +28,6 @@ export interface FlowState {
   budgetRange?: BudgetRange
   processingStage?: 0 | 1 | 2 | 3 | 4
   processingDone?: boolean
-  // screens 9–14 will extend this interface
+  selectedConcept?: 'concept_a' | 'concept_b' | 'concept_c'
+  // screens 10–14 will extend this interface
 }
