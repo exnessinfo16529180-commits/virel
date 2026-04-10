@@ -12,7 +12,7 @@
  * }
  */
 
-const MODEL = 'imagen-3.0-fast-generate-001'
+const MODEL = 'imagen-3.0-generate-002'
 const CONCEPT_IDS = ['concept_a', 'concept_b', 'concept_c']
 const IMAGEN_URL =
   `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:predict`
