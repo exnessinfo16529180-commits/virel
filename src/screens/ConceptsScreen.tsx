@@ -157,21 +157,39 @@ export function ConceptsScreen({ initialState, onNext }: Props) {
         {/* Retry notice — shown only if all images failed */}
         {allFailed && (
           <div className={styles.retryBanner} role="alert">
-            <span className={styles.retryBannerText}>
-              {retryFailed
-                ? 'Не удалось загрузить изображения — показаны цветовые схемы'
-                : 'Изображения не загрузились'}
-            </span>
-            {import.meta.env.DEV && debugInfo && (
-              <span style={{ fontSize: 11, color: '#e9c176', fontFamily: 'monospace', display: 'block', marginTop: 4 }}>
-                [{debugInfo.model}] {debugInfo.statuses.join(',')} — {debugInfo.reasons.join(' | ')}
+            <div style={{ flex: 1 }}>
+              <span className={styles.retryBannerText}>
+                {retryFailed
+                  ? 'Не удалось загрузить изображения — показаны цветовые схемы'
+                  : 'Изображения не загрузились'}
               </span>
-            )}
+              {/* Debug reason — shown in all environments until image generation is stable */}
+              {(() => {
+                const summary = debugInfo?.debugSummary ?? conceptImages?.[0]?.error ?? null
+                const detail  = debugInfo
+                  ? `[${debugInfo.model}] ${debugInfo.statuses.join(',')} | ${debugInfo.reasons[0]}`
+                  : null
+                if (!summary) return null
+                return (
+                  <div style={{ marginTop: 6 }}>
+                    <span style={{ display: 'block', fontSize: 12, color: '#e9c176' }}>
+                      Причина: {summary}
+                    </span>
+                    {detail && (
+                      <span style={{ display: 'block', fontSize: 10, color: 'rgba(209,197,180,0.5)', fontFamily: 'monospace', marginTop: 2 }}>
+                        {detail}
+                      </span>
+                    )}
+                  </div>
+                )
+              })()}
+            </div>
             {!retryFailed && (
               <button
                 className={styles.retryBtn}
                 onClick={handleRetry}
                 disabled={isRetrying}
+                style={{ alignSelf: 'flex-start' }}
               >
                 {isRetrying ? 'Загружаем…' : 'Повторить'}
               </button>

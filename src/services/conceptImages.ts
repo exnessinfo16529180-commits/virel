@@ -73,6 +73,8 @@ export interface GenerationDebug {
   model: string
   statuses: (number | string)[]
   reasons: string[]
+  timestamp?: string
+  debugSummary?: string
 }
 
 export interface GenerationResult {
@@ -115,10 +117,17 @@ export async function generateConceptImages(
       throw new Error(`API responded ${res.status}`)
     }
 
-    const data = await res.json() as { images: ConceptImage[]; debug?: GenerationDebug }
+    const data = await res.json() as {
+      images: ConceptImage[]
+      debug?: GenerationDebug
+      debugSummary?: string
+    }
     const allFailed = data.images.every(img => img.url === null)
+    const debug: GenerationDebug | undefined = data.debug
+      ? { ...data.debug, debugSummary: data.debugSummary }
+      : undefined
 
-    return { images: data.images, allFailed, debug: data.debug }
+    return { images: data.images, allFailed, debug }
   } catch (err) {
     // One automatic retry on failure
     if (retryCount < 1) {
