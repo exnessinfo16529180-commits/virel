@@ -1,0 +1,199 @@
+/* Virel design tokens — «Призрачный Монолит» */
+.root {
+  --bg:               #131313;
+  --surface-low:      #1c1b1b;
+  --surface:          #201f1f;
+  --surface-high:     #2a2a2a;
+  --surface-highest:  #353534;
+  --primary:          #e9c176;
+  --on-primary:       #412d00;
+  --on-surface:       #e5e2e1;
+  --on-surface-muted: #d1c5b4;
+  --outline-ghost:    rgba(78, 70, 57, 0.18);
+  --glow-gold:        rgba(233, 193, 118, 0.14);
+  --ease-premium:     cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  background: var(--bg);
+  color: var(--on-surface);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+  animation: screenEnter 420ms var(--ease-premium) both;
+}
+
+@keyframes screenEnter {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ──────────────────────────────────────── */
+.header {
+  padding: 52px 24px 0;
+}
+
+.step {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--on-surface-muted);
+}
+
+/* ── Main ────────────────────────────────────────── */
+.main {
+  flex: 1;
+  padding: 32px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.headline {
+  margin: 0;
+  font-size: clamp(28px, 7vw, 36px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--on-surface);
+}
+
+.description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--on-surface-muted);
+}
+
+/* ── Summary card ────────────────────────────────── */
+.summaryCard {
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 20px 0 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Group ───────────────────────────────────────── */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0 20px;
+}
+
+/* Gap between groups via padding-top — no divider line */
+.groupGap {
+  padding-top: 20px;
+}
+
+.groupTitle {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--on-surface-muted);
+  opacity: 0.45;
+  padding-bottom: 10px;
+}
+
+/* ── Row ─────────────────────────────────────────── */
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+}
+
+/* Subtle tonal separator between rows — background shift only */
+.row + .row {
+  border-top: 1px solid rgba(78, 70, 57, 0.1);
+}
+
+.rowKey {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--on-surface-muted);
+  opacity: 0.6;
+  flex-shrink: 0;
+  letter-spacing: 0.01em;
+}
+
+.rowVal {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--on-surface);
+  text-align: right;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.rowValDim {
+  color: var(--on-surface-muted);
+  opacity: 0.4;
+  font-weight: 400;
+  font-style: italic;
+}
+
+/* ── Footnote ────────────────────────────────────── */
+.footnote {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--on-surface-muted);
+  opacity: 0.6;
+  text-align: center;
+  padding: 0 8px;
+}
+
+/* ── Footer / CTA ────────────────────────────────── */
+.footer {
+  padding: 16px 24px 40px;
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+}
+
+.cta {
+  all: unset;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px;
+  text-align: center;
+  border-radius: 9999px;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  background: var(--primary);
+  color: var(--on-primary);
+  transition: box-shadow 400ms var(--ease-premium);
+}
+
+.cta:hover {
+  box-shadow: 0 4px 24px rgba(233, 193, 118, 0.3);
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (min-width: 480px) {
+  .root {
+    max-width: 430px;
+    margin: 0 auto;
+  }
+}

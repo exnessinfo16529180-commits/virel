@@ -11,6 +11,7 @@ import { ConceptsScreen } from './screens/ConceptsScreen'
 import { EstimateScreen } from './screens/EstimateScreen'
 import { MaterialsScreen } from './screens/MaterialsScreen'
 import { TeamScreen } from './screens/TeamScreen'
+import { SummaryScreen } from './screens/SummaryScreen'
 import type { FlowState } from './types/flow'
 
 function App() {
@@ -70,7 +71,11 @@ function App() {
     return <TeamScreen initialState={flowState} onNext={handleNext} />
   }
 
-  // Placeholder until screens 13–14 are built
+  if (step === 13) {
+    return <SummaryScreen initialState={flowState} onNext={handleNext} />
+  }
+
+  // Placeholder until screen 14 is built
   return (
     <div style={{ background: '#131313', color: '#e5e2e1', minHeight: '100svh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif' }}>
       <p style={{ opacity: 0.4, fontSize: 14, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
