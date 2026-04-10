@@ -10,6 +10,14 @@ export type Palette = 'neutral' | 'warm' | 'cool' | 'contrast'
 
 export type InteriorStyle = 'modern' | 'scandi' | 'minimal' | 'neoclassic'
 
+export type BudgetRange =
+  | 'under_5m'
+  | '5_10m'
+  | '10_20m'
+  | '20_35m'
+  | 'over_35m'
+  | 'unsure'
+
 export interface FlowState {
   projectType?: ProjectType
   scope?: Scope
@@ -17,5 +25,6 @@ export interface FlowState {
   atmosphere?: Atmosphere
   palette?: Palette
   style?: InteriorStyle
-  // screens 7–14 will extend this interface
+  budgetRange?: BudgetRange
+  // screens 8–14 will extend this interface
 }
