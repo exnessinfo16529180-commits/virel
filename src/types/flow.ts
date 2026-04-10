@@ -6,10 +6,13 @@ export type LayoutSource = 'upload' | 'manual' | 'later'
 
 export type Atmosphere = 'calm' | 'warm' | 'minimal' | 'contrast'
 
+export type Palette = 'neutral' | 'warm' | 'cool' | 'contrast'
+
 export interface FlowState {
   projectType?: ProjectType
   scope?: Scope
   layoutSource?: LayoutSource
   atmosphere?: Atmosphere
-  // screens 5–14 will extend this interface
+  palette?: Palette
+  // screens 6–14 will extend this interface
 }
