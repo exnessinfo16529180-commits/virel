@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
-import type { FlowState } from '../types/flow'
+import { useEffect, useRef, useState } from 'react'
+import type { FlowState, ConceptImage } from '../types/flow'
+import { generateConceptImages } from '../services/conceptImages'
 import styles from './ProcessingScreen.module.css'
 
 interface Props {
@@ -39,24 +40,45 @@ function PendingIcon() {
   )
 }
 
-export function ProcessingScreen({ onNext }: Props) {
-  // completedCount: how many stages are fully done (0–4)
+export function ProcessingScreen({ initialState, onNext }: Props) {
   const [completedCount, setCompletedCount] = useState(0)
+  const conceptImagesRef = useRef<ConceptImage[] | null>(null)
+  const generationStarted = useRef(false)
 
+  // Stage timer — deterministic 1200ms per stage
   useEffect(() => {
     if (completedCount >= STAGE_LABELS.length) return
-
     const timer = setTimeout(() => {
       setCompletedCount(prev => prev + 1)
     }, STAGE_DURATION_MS)
-
     return () => clearTimeout(timer)
   }, [completedCount])
 
+  // Start image generation immediately on mount — runs in parallel with stages
+  useEffect(() => {
+    if (generationStarted.current) return
+    generationStarted.current = true
+
+    generateConceptImages(initialState ?? {}).then(result => {
+      conceptImagesRef.current = result.images
+    }).catch(() => {
+      // Errors are handled inside generateConceptImages (returns null URLs)
+      conceptImagesRef.current = null
+    })
+  }, [initialState])
+
   const isDone = completedCount >= STAGE_LABELS.length
-  // activeIndex: the stage currently animating (0-based), -1 if not started yet
-  // A stage is "active" when it equals completedCount (next to be completed)
   const activeIndex = isDone ? -1 : completedCount
+
+  const handleNext = () => {
+    if (!isDone) return
+    onNext({
+      processingDone:  true,
+      processingStage: 4,
+      // Pass images if ready; Screen 9 handles null gracefully
+      ...(conceptImagesRef.current ? { conceptImages: conceptImagesRef.current } : {}),
+    })
+  }
 
   return (
     <div className={styles.root}>
@@ -88,7 +110,7 @@ export function ProcessingScreen({ onNext }: Props) {
         {/* Stage list */}
         <ol className={styles.stages} aria-label="Этапы обработки">
           {STAGE_LABELS.map((label, i) => {
-            const done = i < completedCount
+            const done   = i < completedCount
             const active = i === activeIndex
             return (
               <li
@@ -96,7 +118,9 @@ export function ProcessingScreen({ onNext }: Props) {
                 className={`${styles.stage} ${done ? styles.stageDone : ''} ${active ? styles.stageActive : ''}`}
               >
                 <span className={styles.stageIcon}>
-                  {done ? <CheckIcon /> : active ? (
+                  {done ? (
+                    <CheckIcon />
+                  ) : active ? (
                     <span className={styles.activeDot} aria-hidden="true" />
                   ) : (
                     <PendingIcon />
@@ -113,7 +137,7 @@ export function ProcessingScreen({ onNext }: Props) {
         <button
           className={styles.cta}
           disabled={!isDone}
-          onClick={() => isDone && onNext({ processingDone: true, processingStage: 4 })}
+          onClick={handleNext}
         >
           {isDone ? 'Смотреть концепты' : 'Продолжить'}
         </button>
