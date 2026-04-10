@@ -10,32 +10,12 @@
  *   or null if that particular image failed.
  */
 
-const CONCEPT_IDS = ['concept_a', 'concept_b', 'concept_c'] as const
-type ConceptId = (typeof CONCEPT_IDS)[number]
-
-interface ConceptImage {
-  conceptId: ConceptId
-  url: string | null
-  error: string | null
-}
-
-interface ImagenPrediction {
-  bytesBase64Encoded?: string
-  mimeType?: string
-  raiFilteredReason?: string
-}
-
-interface ImagenResponse {
-  predictions?: ImagenPrediction[]
-  error?: { code: number; message: string }
-}
-
-// ── Google Imagen call ────────────────────────────────────────────────────────
+const CONCEPT_IDS = ['concept_a', 'concept_b', 'concept_c']
 
 const IMAGEN_URL =
   'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-fast-generate-001:predict'
 
-async function generateOne(prompt: string, apiKey: string): Promise<string> {
+async function generateOne(prompt, apiKey) {
   const res = await fetch(IMAGEN_URL, {
     method: 'POST',
     headers: {
@@ -52,7 +32,7 @@ async function generateOne(prompt: string, apiKey: string): Promise<string> {
     }),
   })
 
-  const data = (await res.json()) as ImagenResponse
+  const data = await res.json()
 
   if (!res.ok || data.error) {
     throw new Error(data.error?.message ?? `HTTP ${res.status}`)
@@ -67,22 +47,7 @@ async function generateOne(prompt: string, apiKey: string): Promise<string> {
   return `data:${mime};base64,${prediction.bytesBase64Encoded}`
 }
 
-// ── Request / Response minimal types (Vercel runtime) ────────────────────────
-
-interface Req {
-  method: string
-  body: { prompts?: unknown }
-}
-
-interface Res {
-  status(code: number): Res
-  json(body: unknown): void
-  setHeader(key: string, value: string): void
-}
-
-// ── Handler ───────────────────────────────────────────────────────────────────
-
-export default async function handler(req: Req, res: Res): Promise<void> {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' })
     return
@@ -100,9 +65,8 @@ export default async function handler(req: Req, res: Res): Promise<void> {
     return
   }
 
-  // Generate all 3 images in parallel; per-image errors produce null URLs
-  const images: ConceptImage[] = await Promise.all(
-    (prompts as string[]).map(async (prompt, i) => {
+  const images = await Promise.all(
+    prompts.map(async (prompt, i) => {
       const conceptId = CONCEPT_IDS[i]
       try {
         const url = await generateOne(prompt, apiKey)
