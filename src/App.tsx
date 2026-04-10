@@ -9,6 +9,7 @@ import { BudgetScreen } from './screens/BudgetScreen'
 import { ProcessingScreen } from './screens/ProcessingScreen'
 import { ConceptsScreen } from './screens/ConceptsScreen'
 import { EstimateScreen } from './screens/EstimateScreen'
+import { MaterialsScreen } from './screens/MaterialsScreen'
 import type { FlowState } from './types/flow'
 
 function App() {
@@ -60,7 +61,11 @@ function App() {
     return <EstimateScreen initialState={flowState} onNext={handleNext} />
   }
 
-  // Placeholder until screens 11–14 are built
+  if (step === 11) {
+    return <MaterialsScreen initialState={flowState} onNext={handleNext} />
+  }
+
+  // Placeholder until screens 12–14 are built
   return (
     <div style={{ background: '#131313', color: '#e5e2e1', minHeight: '100svh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif' }}>
       <p style={{ opacity: 0.4, fontSize: 14, letterSpacing: '0.1em', textTransform: 'uppercase' }}>

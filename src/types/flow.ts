@@ -36,5 +36,6 @@ export interface FlowState {
     reserve: number
     total: number
   }
-  // screens 11–14 will extend this interface
+  materialsPackage?: 'basic' | 'optimal' | 'premium'
+  // screens 12–14 will extend this interface
 }
