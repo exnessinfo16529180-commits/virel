@@ -38,5 +38,6 @@ export interface FlowState {
   }
   materialsPackage?: 'basic' | 'optimal' | 'premium'
   teamPackage?: 'econom' | 'balanced' | 'premium'
-  // screens 13–14 will extend this interface
+  consentAccepted?: boolean
+  projectLaunched?: boolean
 }
