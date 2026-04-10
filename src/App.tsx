@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ProjectTypeScreen } from './screens/ProjectTypeScreen'
 import { ScopeScreen } from './screens/ScopeScreen'
 import { LayoutScreen } from './screens/LayoutScreen'
+import { AtmosphereScreen } from './screens/AtmosphereScreen'
 import type { FlowState } from './types/flow'
 
 function App() {
@@ -25,7 +26,11 @@ function App() {
     return <LayoutScreen initialState={flowState} onNext={handleNext} />
   }
 
-  // Placeholder until screens 4–14 are built
+  if (step === 4) {
+    return <AtmosphereScreen initialState={flowState} onNext={handleNext} />
+  }
+
+  // Placeholder until screens 5–14 are built
   return (
     <div style={{ background: '#131313', color: '#e5e2e1', minHeight: '100svh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif' }}>
       <p style={{ opacity: 0.4, fontSize: 14, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
