@@ -37,5 +37,6 @@ export interface FlowState {
     total: number
   }
   materialsPackage?: 'basic' | 'optimal' | 'premium'
-  // screens 12–14 will extend this interface
+  teamPackage?: 'econom' | 'balanced' | 'premium'
+  // screens 13–14 will extend this interface
 }
