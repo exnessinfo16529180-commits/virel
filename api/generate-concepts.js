@@ -1,7 +1,7 @@
 /**
  * POST /api/generate-concepts
  *
- * Calls Google AI Studio — Imagen 3 Fast — to generate 3 concept images.
+ * Calls Google AI Studio — Gemini image generation — to produce 3 concept images.
  * The GOOGLE_API_KEY is kept server-side and never exposed to the client.
  *
  * Request body:  { prompts: [string, string, string] }
@@ -12,16 +12,15 @@
  * }
  */
 
-const MODEL = 'imagen-3.0-generate-002'
+const MODEL = 'gemini-2.0-flash-preview-image-generation'
 const CONCEPT_IDS = ['concept_a', 'concept_b', 'concept_c']
-const IMAGEN_URL =
-  `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:predict`
+const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models'
 
 /** Produce a single human-readable cause line from collected statuses/reasons. */
 function buildDebugSummary(statuses, reasons) {
-  const status  = statuses[0]
-  const reason  = reasons.find(r => r && r !== 'ok') ?? reasons[0] ?? 'unknown'
-  if (status === 403) return `Permission denied (403) — check API key or Imagen access`
+  const status = statuses[0]
+  const reason = reasons.find(r => r && r !== 'ok') ?? reasons[0] ?? 'unknown'
+  if (status === 403) return `Permission denied (403) — check API key or Gemini access`
   if (status === 401) return `Unauthorized (401) — API key missing or invalid`
   if (status === 400) return `Bad request (400) — ${reason}`
   if (status === 404) return `Model not found (404) — ${reason}`
@@ -33,18 +32,17 @@ function buildDebugSummary(statuses, reasons) {
 
 /** @returns {{ url: string, upstreamStatus: number, reason: string }} */
 async function generateOne(prompt, apiKey) {
-  const upstream = await fetch(IMAGEN_URL, {
+  const endpoint = `${BASE_URL}/${MODEL}:generateContent?key=${apiKey}`
+
+  const upstream = await fetch(endpoint, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-goog-api-key': apiKey,
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      instances: [{ prompt }],
-      parameters: {
-        sampleCount: 1,
-        aspectRatio: '16:9',
-        safetySetting: 'block_some',
+      contents: [
+        { parts: [{ text: prompt }] },
+      ],
+      generationConfig: {
+        responseModalities: ['TEXT', 'IMAGE'],
       },
     }),
   })
@@ -61,12 +59,6 @@ async function generateOne(prompt, apiKey) {
     throw Object.assign(new Error(`Non-JSON response: ${snippet}`), { upstreamStatus })
   }
 
-  const hasPredictions = Array.isArray(data.predictions) && data.predictions.length > 0
-  const hasBytes = hasPredictions && Boolean(data.predictions[0]?.bytesBase64Encoded)
-  console.log(
-    `[generate-concepts] upstream=${upstreamStatus} hasPredictions=${hasPredictions} hasBytes=${hasBytes}`,
-  )
-
   if (!upstream.ok || data.error) {
     const snippet = JSON.stringify(data).slice(0, 300)
     console.error(`[generate-concepts] API error body: ${snippet}`)
@@ -76,17 +68,22 @@ async function generateOne(prompt, apiKey) {
     )
   }
 
-  const prediction = data.predictions?.[0]
-  if (!prediction?.bytesBase64Encoded) {
-    const reason = prediction?.raiFilteredReason ?? 'bytesBase64Encoded missing'
-    console.error(`[generate-concepts] no bytes — reason: ${reason}`)
-    console.error(`[generate-concepts] prediction keys: ${Object.keys(prediction ?? {}).join(', ')}`)
+  // Walk candidates → content → parts to find inlineData
+  const parts = data.candidates?.[0]?.content?.parts ?? []
+  const imagePart = parts.find(p => p.inlineData?.data)
+
+  if (!imagePart) {
+    const textPart = parts.find(p => p.text)?.text ?? ''
+    const reason = `No image in response${textPart ? ': ' + textPart.slice(0, 120) : ''}`
+    console.error(`[generate-concepts] ${reason}`)
+    console.error(`[generate-concepts] part keys: ${parts.map(p => Object.keys(p).join('+')).join(', ')}`)
     throw Object.assign(new Error(reason), { upstreamStatus })
   }
 
-  const mime = prediction.mimeType ?? 'image/jpeg'
-  console.log(`[generate-concepts] OK mime=${mime} len=${prediction.bytesBase64Encoded.length}`)
-  return { url: `data:${mime};base64,${prediction.bytesBase64Encoded}`, upstreamStatus, reason: 'ok' }
+  const mime = imagePart.inlineData.mimeType ?? 'image/png'
+  const bytes = imagePart.inlineData.data
+  console.log(`[generate-concepts] OK upstream=${upstreamStatus} mime=${mime} len=${bytes.length}`)
+  return { url: `data:${mime};base64,${bytes}`, upstreamStatus, reason: 'ok' }
 }
 
 export default async function handler(req, res) {
