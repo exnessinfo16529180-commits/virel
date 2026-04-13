@@ -12,9 +12,15 @@
  * }
  */
 
-const MODEL = 'gemini-2.0-flash-preview-image-generation'
 const CONCEPT_IDS = ['concept_a', 'concept_b', 'concept_c']
 const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models'
+const MODEL_CANDIDATES = [
+  'gemini-2.5-flash-image-preview',
+  'gemini-2.0-flash-preview-image-generation',
+  'imagen-4.0-fast-generate-001',
+  'imagen-4.0-generate-001',
+  'imagen-3.0-generate-002',
+]
 
 /** Produce a single human-readable cause line from collected statuses/reasons. */
 function buildDebugSummary(statuses, reasons) {
@@ -31,8 +37,43 @@ function buildDebugSummary(statuses, reasons) {
 }
 
 /** @returns {{ url: string, upstreamStatus: number, reason: string }} */
-async function generateOne(prompt, apiKey) {
-  const endpoint = `${BASE_URL}/${MODEL}:generateContent?key=${apiKey}`
+async function resolveModel(apiKey) {
+  const listEndpoint = `${BASE_URL}?key=${apiKey}`
+
+  try {
+    const listRes = await fetch(listEndpoint)
+    const listData = await listRes.json()
+
+    if (Array.isArray(listData.models)) {
+      const available = listData.models
+        .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes('generateContent'))
+        .map(m => (m.name || '').replace('models/', ''))
+        .filter(Boolean)
+
+      for (const candidate of MODEL_CANDIDATES) {
+        if (available.includes(candidate)) return candidate
+      }
+
+      const firstImageLike = available.find(name =>
+        name.includes('image') || name.includes('imagen'),
+      )
+      if (firstImageLike) return firstImageLike
+
+      if (available.length > 0) return available[0]
+
+      throw new Error('No models with generateContent available for this key')
+    }
+  } catch (err) {
+    console.error(`[generate-concepts] ListModels failed: ${err instanceof Error ? err.message : 'unknown error'}`)
+  }
+
+  // Fallback when ListModels is unavailable.
+  return MODEL_CANDIDATES[0]
+}
+
+/** @returns {{ url: string, upstreamStatus: number, reason: string }} */
+async function generateOne(prompt, apiKey, model) {
+  const endpoint = `${BASE_URL}/${model}:generateContent?key=${apiKey}`
 
   const upstream = await fetch(endpoint, {
     method: 'POST',
@@ -106,12 +147,13 @@ export default async function handler(req, res) {
 
   const debugStatuses = []
   const debugReasons  = []
+  const model = await resolveModel(apiKey)
 
   const images = await Promise.all(
     prompts.map(async (prompt, i) => {
       const conceptId = CONCEPT_IDS[i]
       try {
-        const { url, upstreamStatus, reason } = await generateOne(prompt, apiKey)
+        const { url, upstreamStatus, reason } = await generateOne(prompt, apiKey, model)
         debugStatuses.push(upstreamStatus)
         debugReasons.push(reason)
         return { conceptId, url, error: null }
@@ -126,7 +168,7 @@ export default async function handler(req, res) {
 
   const allFailed = images.every(img => img.url === null)
   const debug = {
-    model:     MODEL,
+    model,
     statuses:  debugStatuses,
     reasons:   debugReasons,
     timestamp: new Date().toISOString(),
