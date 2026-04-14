@@ -38,9 +38,29 @@ export interface ManualWindow {
   width: number
 }
 
+export interface ManualWall {
+  id: string
+  x1: number
+  y1: number
+  x2: number
+  y2: number
+  kind: 'outer' | 'inner'
+}
+
+export interface ManualOpening {
+  id: string
+  wallId: string
+  kind: 'door' | 'window'
+  t: number
+  width: number
+}
+
 export interface ManualLayoutDraft {
   totalArea: number | null
   ceilingHeight: number | null
+  walls: ManualWall[]
+  openings: ManualOpening[]
+  // Legacy fields kept for compatibility with older saved states.
   rooms: ManualRoom[]
   doors: ManualDoor[]
   windows: ManualWindow[]

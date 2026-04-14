@@ -1,22 +1,23 @@
 .root {
-  --bg:               #131313;
-  --surface-low:      #1c1b1b;
-  --surface:          #201f1f;
-  --surface-high:     #2a2a2a;
-  --surface-highest:  #353534;
-  --primary:          #e9c176;
-  --on-primary:       #412d00;
-  --on-surface:       #e5e2e1;
+  --bg: #131313;
+  --surface-low: #1c1b1b;
+  --surface: #201f1f;
+  --surface-high: #2a2a2a;
+  --surface-highest: #353534;
+  --primary: #e9c176;
+  --on-primary: #412d00;
+  --on-surface: #e5e2e1;
   --on-surface-muted: #d1c5b4;
-  --outline-ghost:    rgba(78, 70, 57, 0.2);
-  --error:            #f18f7d;
-  --warn:             #d9b76e;
-  --ease-premium:     cubic-bezier(0.22, 1, 0.36, 1);
+  --outline-ghost: rgba(78, 70, 57, 0.22);
+  --error: #f18f7d;
+  --warn: #d9b76e;
+  --blue: #92c8ff;
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
 
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(130% 120% at 100% 0%, #1f1b15 0%, var(--bg) 45%);
+  background: radial-gradient(130% 120% at 100% 0%, #211b14 0%, var(--bg) 45%);
   color: var(--on-surface);
   font-family: 'Inter', system-ui, sans-serif;
   animation: screenEnter 420ms var(--ease-premium) both;
@@ -27,9 +28,7 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-.header {
-  padding: 52px 24px 0;
-}
+.header { padding: 52px 24px 0; }
 
 .step {
   font-size: 11px;
@@ -43,7 +42,7 @@
   padding: 28px 24px 16px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
 .intro {
@@ -75,27 +74,25 @@
   all: unset;
   display: flex;
   align-items: center;
-  gap: 14px;
-  background: var(--surface);
+  gap: 12px;
+  padding: 12px;
   border-radius: 16px;
-  padding: 14px;
-  cursor: pointer;
-  transition: all 320ms var(--ease-premium);
+  background: var(--surface);
   border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 300ms var(--ease-premium);
 }
 
-.card:hover {
-  background: var(--surface-high);
-}
+.card:hover { background: var(--surface-high); }
 
 .cardSelected {
   border-color: rgba(233, 193, 118, 0.5);
-  box-shadow: 0 0 0 1px rgba(233, 193, 118, 0.35), 0 12px 36px rgba(233, 193, 118, 0.15);
+  box-shadow: 0 0 0 1px rgba(233, 193, 118, 0.35), 0 12px 28px rgba(233, 193, 118, 0.14);
 }
 
 .iconWrap {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -105,8 +102,8 @@
 }
 
 .cardSelected .iconWrap {
-  background: rgba(233, 193, 118, 0.12);
   color: var(--primary);
+  background: rgba(233, 193, 118, 0.14);
 }
 
 .cardText {
@@ -118,7 +115,6 @@
 
 .cardLabel {
   font-size: 15px;
-  color: var(--on-surface);
   font-weight: 500;
 }
 
@@ -128,8 +124,8 @@
 }
 
 .dot {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
   border: 1.5px solid var(--outline-ghost);
 }
@@ -141,41 +137,38 @@
 
 .panel {
   background: var(--surface);
-  border-radius: 18px;
-  padding: 14px;
+  border-radius: 16px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 11px;
 }
 
 .panelTitle {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--on-surface-muted);
+  color: rgba(209, 197, 180, 0.75);
 }
 
-.hiddenInput {
-  display: none;
-}
+.hiddenInput { display: none; }
 
 .uploadZone {
   all: unset;
-  background: linear-gradient(135deg, #2f2619 0%, #3e3122 100%);
-  border: 1px dashed rgba(233, 193, 118, 0.5);
+  cursor: pointer;
+  padding: 16px;
   border-radius: 14px;
-  padding: 18px;
+  border: 1px dashed rgba(233, 193, 118, 0.5);
+  background: linear-gradient(135deg, #2f2619 0%, #3f3222 100%);
   display: flex;
   flex-direction: column;
   gap: 6px;
-  cursor: pointer;
 }
 
 .uploadBig {
   font-size: 14px;
   font-weight: 500;
-  color: var(--on-surface);
 }
 
 .uploadSmall {
@@ -187,7 +180,7 @@
   display: flex;
   justify-content: space-between;
   font-size: 12px;
-  padding: 10px 12px;
+  padding: 9px 10px;
   border-radius: 10px;
   background: var(--surface-high);
   color: var(--on-surface-muted);
@@ -209,11 +202,10 @@
   font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(209, 197, 180, 0.7);
+  color: rgba(209, 197, 180, 0.72);
 }
 
-.field input,
-.field select {
+.field input {
   appearance: none;
   border: 1px solid var(--outline-ghost);
   background: var(--surface-low);
@@ -221,20 +213,6 @@
   border-radius: 10px;
   padding: 10px 12px;
   font-size: 14px;
-}
-
-.board {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 11;
-  background:
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    var(--surface-low);
-  background-size: 8% 8%, 8% 8%, auto;
-  border-radius: 14px;
-  border: 1px solid var(--outline-ghost);
-  overflow: hidden;
 }
 
 .toolsRow {
@@ -248,25 +226,28 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: rgba(209, 197, 180, 0.7);
+  color: rgba(209, 197, 180, 0.72);
 }
 
 .modeBtn,
-.sideBtn {
+.sideBtn,
+.templateChip,
+.ghostBtn,
+.tag {
   all: unset;
   cursor: pointer;
-  font-size: 12px;
-  color: var(--on-surface-muted);
-  border: 1px solid var(--outline-ghost);
   border-radius: 999px;
   padding: 6px 10px;
+  font-size: 12px;
+  border: 1px solid var(--outline-ghost);
   background: var(--surface-low);
+  color: var(--on-surface-muted);
 }
 
 .modeBtnActive,
 .sideBtnActive {
-  color: var(--on-primary);
   background: var(--primary);
+  color: var(--on-primary);
   border-color: var(--primary);
 }
 
@@ -276,68 +257,73 @@
   gap: 8px;
 }
 
-.templateChip {
-  all: unset;
-  cursor: pointer;
-  font-size: 12px;
-  color: var(--primary);
-  border: 1px solid rgba(233, 193, 118, 0.35);
-  border-radius: 999px;
-  padding: 6px 10px;
-  background: rgba(233, 193, 118, 0.08);
-}
-
-.room {
-  all: unset;
-  position: absolute;
-  box-sizing: border-box;
-  border-radius: 10px;
-  border: 1px solid rgba(209, 197, 180, 0.38);
-  background: rgba(72, 66, 58, 0.8);
-  backdrop-filter: blur(2px);
-  color: var(--on-surface);
-  padding: 6px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  cursor: grab;
-  user-select: none;
-}
-
-.roomActive {
-  border-color: rgba(233, 193, 118, 0.8);
-  box-shadow: inset 0 0 0 1px rgba(233, 193, 118, 0.45), 0 0 14px rgba(233, 193, 118, 0.24);
-}
-
-.roomName {
-  font-size: 11px;
-  font-weight: 500;
-}
-
-.roomDims {
-  font-size: 10px;
-  opacity: 0.72;
-}
-
-.opening {
-  position: absolute;
-  border-radius: 999px;
-  box-shadow: 0 0 8px rgba(233, 193, 118, 0.5);
-}
-
-.roomsRow {
-  display: flex;
-  justify-content: flex-start;
-}
-
+.templateChip,
 .ghostBtn {
-  all: unset;
-  cursor: pointer;
-  font-size: 13px;
   color: var(--primary);
-  padding: 8px 10px;
-  border-radius: 9px;
-  background: rgba(233, 193, 118, 0.12);
+  border-color: rgba(233, 193, 118, 0.38);
+  background: rgba(233, 193, 118, 0.1);
+}
+
+.board {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  border-radius: 14px;
+  border: 1px solid var(--outline-ghost);
+  overflow: hidden;
+  background:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    var(--surface-low);
+  background-size: 6.5% 6.5%, 6.5% 6.5%, auto;
+}
+
+.planSvg {
+  width: 100%;
+  height: 100%;
+}
+
+.wallLine {
+  fill: none;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.wallOuter {
+  stroke: rgba(229, 226, 225, 0.96);
+  stroke-width: 3.5;
+}
+
+.wallInner {
+  stroke: rgba(209, 197, 180, 0.88);
+  stroke-width: 2.5;
+}
+
+.wallSelected {
+  stroke: var(--primary);
+}
+
+.doorPoint {
+  fill: var(--primary);
+}
+
+.windowPoint {
+  fill: var(--blue);
+}
+
+.handlePoint {
+  fill: var(--primary);
+  cursor: grab;
+}
+
+.pendingPoint {
+  fill: var(--warn);
+}
+
+.hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--on-surface-muted);
 }
 
 .roomEditor {
@@ -346,7 +332,7 @@
   padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   background: var(--surface-low);
 }
 
@@ -358,27 +344,10 @@
   color: var(--on-surface-muted);
 }
 
-.dangerBtn {
-  all: unset;
-  cursor: pointer;
-  color: var(--error);
+.metaLine {
+  margin: 0;
   font-size: 12px;
-}
-
-.doorsComposer {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 8px;
-}
-
-.doorsComposer select {
-  appearance: none;
-  border: 1px solid var(--outline-ghost);
-  background: #171717;
-  color: var(--on-surface);
-  border-radius: 10px;
-  padding: 9px 10px;
-  font-size: 13px;
+  color: var(--on-surface-muted);
 }
 
 .doorTags {
@@ -387,15 +356,11 @@
   gap: 8px;
 }
 
-.tag {
+.dangerBtn {
   all: unset;
   cursor: pointer;
+  color: var(--error);
   font-size: 12px;
-  color: var(--on-surface-muted);
-  padding: 6px 9px;
-  border-radius: 999px;
-  background: var(--surface-high);
-  border: 1px solid var(--outline-ghost);
 }
 
 .validationPanel {
@@ -412,16 +377,11 @@
 .validationWarn {
   margin: 0;
   font-size: 12px;
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
-.validationError {
-  color: var(--error);
-}
-
-.validationWarn {
-  color: var(--warn);
-}
+.validationError { color: var(--error); }
+.validationWarn { color: var(--warn); }
 
 .footer {
   display: grid;
@@ -463,10 +423,6 @@
 
 @media (max-width: 380px) {
   .inputsGrid,
-  .doorsComposer {
-    grid-template-columns: 1fr;
-  }
-
   .footer {
     grid-template-columns: 1fr;
   }
