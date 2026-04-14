@@ -103,10 +103,10 @@ export function SummaryScreen({ initialState = {}, onNext }: Props) {
       return s.layoutFile ? `Файл: ${s.layoutFile.name}` : 'Загружу план'
     }
     if (s.layoutSource === 'manual') {
-      const walls = s.manualLayout?.walls.length ?? 0
+      const rooms = s.manualLayout?.rooms.length ?? 0
       const openings = s.manualLayout?.openings.length ?? 0
       const area = s.manualLayout?.totalArea ? `${s.manualLayout.totalArea} м²` : 'без площади'
-      return walls > 0 ? `План: ${walls} стен, ${openings} проёмов, ${area}` : 'Нарисую вручную'
+      return rooms > 0 ? `План: ${rooms} комн., ${openings} проёмов, ${area}` : 'Введу вручную'
     }
     return fmt(LAYOUT_LABEL, s.layoutSource)
   })()

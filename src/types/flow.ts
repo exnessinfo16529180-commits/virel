@@ -14,10 +14,8 @@ export interface ManualRoom {
   id: string
   name: string
   purpose: string
-  x: number
-  y: number
-  width: number
-  height: number
+  lengthM: number
+  widthM: number
 }
 
 export type WallSide = 'top' | 'right' | 'bottom' | 'left'
@@ -25,17 +23,18 @@ export type WallSide = 'top' | 'right' | 'bottom' | 'left'
 export interface ManualDoor {
   id: string
   roomId: string
-  side: WallSide
-  offset: number
-  width: number
+  wall: WallSide
+  widthCm: number
+  heightCm: number
 }
 
 export interface ManualWindow {
   id: string
   roomId: string
-  side: WallSide
-  offset: number
-  width: number
+  wall: WallSide
+  widthCm: number
+  heightCm: number
+  sillHeightCm: number
 }
 
 export interface ManualWall {
@@ -49,19 +48,32 @@ export interface ManualWall {
 
 export interface ManualOpening {
   id: string
-  wallId: string
+  roomId: string
+  wall: WallSide
   kind: 'door' | 'window'
-  t: number
-  width: number
+  widthCm: number
+  heightCm: number
+  sillHeightCm?: number
+}
+
+export type ApartmentType = 'studio' | '1k' | '2k' | '3k' | 'custom'
+
+export interface ManualPlannerMeta {
+  apartmentType: ApartmentType
+  stepCompleted?: 1 | 2 | 3
 }
 
 export interface ManualLayoutDraft {
   totalArea: number | null
   ceilingHeight: number | null
-  walls: ManualWall[]
-  openings: ManualOpening[]
-  // Legacy fields kept for compatibility with older saved states.
+  planner?: ManualPlannerMeta
+
+  // Wizard-first data
   rooms: ManualRoom[]
+  openings: ManualOpening[]
+
+  // Legacy fields kept for compatibility with older saved states.
+  walls: ManualWall[]
   doors: ManualDoor[]
   windows: ManualWindow[]
 }
