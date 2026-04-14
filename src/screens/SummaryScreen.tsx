@@ -98,6 +98,17 @@ interface Group {
 
 export function SummaryScreen({ initialState = {}, onNext }: Props) {
   const s = initialState
+  const layoutValue = (() => {
+    if (s.layoutSource === 'upload') {
+      return s.layoutFile ? `Файл: ${s.layoutFile.name}` : 'Загружу план'
+    }
+    if (s.layoutSource === 'manual') {
+      const rooms = s.manualLayout?.rooms.length ?? 0
+      const area = s.manualLayout?.totalArea ? `${s.manualLayout.totalArea} м²` : 'без площади'
+      return rooms > 0 ? `Ручной ввод: ${rooms} комн., ${area}` : 'Введу вручную'
+    }
+    return fmt(LAYOUT_LABEL, s.layoutSource)
+  })()
 
   const groups: Group[] = [
     {
@@ -105,7 +116,7 @@ export function SummaryScreen({ initialState = {}, onNext }: Props) {
       rows: [
         { label: 'Тип проекта', value: fmt(PROJECT_TYPE_LABEL, s.projectType) },
         { label: 'Масштаб',     value: fmt(SCOPE_LABEL,        s.scope) },
-        { label: 'Планировка',  value: fmt(LAYOUT_LABEL,       s.layoutSource) },
+        { label: 'Планировка',  value: layoutValue },
       ],
     },
     {

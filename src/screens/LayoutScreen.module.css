@@ -1,4 +1,3 @@
-/* Virel design tokens — «Призрачный Монолит» (Stitch: RenoAI Product Interface) */
 .root {
   --bg:               #131313;
   --surface-low:      #1c1b1b;
@@ -9,47 +8,42 @@
   --on-primary:       #412d00;
   --on-surface:       #e5e2e1;
   --on-surface-muted: #d1c5b4;
-  --outline-ghost:    rgba(78, 70, 57, 0.18);
-  --glow-gold:        rgba(233, 193, 118, 0.14);
+  --outline-ghost:    rgba(78, 70, 57, 0.2);
+  --error:            #f18f7d;
+  --warn:             #d9b76e;
   --ease-premium:     cubic-bezier(0.22, 1, 0.36, 1);
 
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
-  min-height: 100svh;
-  background: var(--bg);
+  background: radial-gradient(130% 120% at 100% 0%, #1f1b15 0%, var(--bg) 45%);
   color: var(--on-surface);
   font-family: 'Inter', system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  box-sizing: border-box;
   animation: screenEnter 420ms var(--ease-premium) both;
 }
 
 @keyframes screenEnter {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Header ──────────────────────────────────────── */
 .header {
   padding: 52px 24px 0;
 }
 
 .step {
-  display: inline-block;
   font-size: 11px;
-  font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--on-surface-muted);
 }
 
-/* ── Main ────────────────────────────────────────── */
 .main {
   flex: 1;
-  padding: 32px 24px 24px;
+  padding: 28px 24px 16px;
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 18px;
 }
 
 .intro {
@@ -63,8 +57,6 @@
   font-size: clamp(28px, 7vw, 36px);
   font-weight: 500;
   letter-spacing: -0.02em;
-  line-height: 1.15;
-  color: var(--on-surface);
 }
 
 .description {
@@ -74,70 +66,49 @@
   color: var(--on-surface-muted);
 }
 
-/* ── Cards ───────────────────────────────────────── */
 .cards {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  gap: 10px;
 }
 
 .card {
   all: unset;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 20px;
+  gap: 14px;
   background: var(--surface);
-  border-radius: 20px;
+  border-radius: 16px;
+  padding: 14px;
   cursor: pointer;
-  transition:
-    background 400ms var(--ease-premium),
-    box-shadow 400ms var(--ease-premium);
-  color: var(--on-surface-muted);
-  box-sizing: border-box;
-  width: 100%;
-  text-align: left;
+  transition: all 320ms var(--ease-premium);
+  border: 1px solid transparent;
 }
 
 .card:hover {
   background: var(--surface-high);
 }
 
-.card:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
 .cardSelected {
-  background: var(--surface-high);
-  color: var(--on-surface);
-  box-shadow:
-    0 0 0 1px var(--outline-ghost),
-    0 8px 40px var(--glow-gold);
+  border-color: rgba(233, 193, 118, 0.5);
+  box-shadow: 0 0 0 1px rgba(233, 193, 118, 0.35), 0 12px 36px rgba(233, 193, 118, 0.15);
 }
 
-/* ── Icon wrap ───────────────────────────────────── */
 .iconWrap {
-  flex-shrink: 0;
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--surface-highest);
-  border-radius: 14px;
   color: var(--on-surface-muted);
-  transition:
-    color 400ms var(--ease-premium),
-    background 400ms var(--ease-premium);
 }
 
 .cardSelected .iconWrap {
+  background: rgba(233, 193, 118, 0.12);
   color: var(--primary);
-  background: rgba(233, 193, 118, 0.08);
 }
 
-/* ── Card text ───────────────────────────────────── */
 .cardText {
   flex: 1;
   display: flex;
@@ -146,85 +117,319 @@
 }
 
 .cardLabel {
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.3;
+  font-size: 15px;
   color: var(--on-surface);
-  letter-spacing: -0.01em;
+  font-weight: 500;
 }
 
 .cardSub {
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 12px;
   color: var(--on-surface-muted);
 }
 
-/* ── Dot ─────────────────────────────────────────── */
 .dot {
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   border: 1.5px solid var(--outline-ghost);
-  background: transparent;
-  transition:
-    background 300ms var(--ease-premium),
-    border-color 300ms var(--ease-premium),
-    box-shadow 300ms var(--ease-premium);
 }
 
 .dotSelected {
   background: var(--primary);
   border-color: var(--primary);
-  box-shadow: 0 0 10px rgba(233, 193, 118, 0.4);
 }
 
-/* ── Footer / CTA ────────────────────────────────── */
+.panel {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--on-surface-muted);
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.uploadZone {
+  all: unset;
+  background: linear-gradient(135deg, #2f2619 0%, #3e3122 100%);
+  border: 1px dashed rgba(233, 193, 118, 0.5);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.uploadBig {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--on-surface);
+}
+
+.uploadSmall {
+  font-size: 12px;
+  color: var(--on-surface-muted);
+}
+
+.fileMeta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface-high);
+  color: var(--on-surface-muted);
+}
+
+.inputsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field span {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(209, 197, 180, 0.7);
+}
+
+.field input,
+.field select {
+  appearance: none;
+  border: 1px solid var(--outline-ghost);
+  background: var(--surface-low);
+  color: var(--on-surface);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.board {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  background:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    var(--surface-low);
+  background-size: 8% 8%, 8% 8%, auto;
+  border-radius: 14px;
+  border: 1px solid var(--outline-ghost);
+  overflow: hidden;
+}
+
+.room {
+  all: unset;
+  position: absolute;
+  box-sizing: border-box;
+  border-radius: 10px;
+  border: 1px solid rgba(209, 197, 180, 0.38);
+  background: rgba(72, 66, 58, 0.8);
+  backdrop-filter: blur(2px);
+  color: var(--on-surface);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: grab;
+  user-select: none;
+}
+
+.roomActive {
+  border-color: rgba(233, 193, 118, 0.8);
+  box-shadow: inset 0 0 0 1px rgba(233, 193, 118, 0.45), 0 0 14px rgba(233, 193, 118, 0.24);
+}
+
+.roomName {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.roomDims {
+  font-size: 10px;
+  opacity: 0.72;
+}
+
+.doorsSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.doorLine {
+  stroke: rgba(233, 193, 118, 0.7);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+
+.roomsRow {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.ghostBtn {
+  all: unset;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--primary);
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: rgba(233, 193, 118, 0.12);
+}
+
+.roomEditor {
+  border: 1px solid var(--outline-ghost);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--surface-low);
+}
+
+.subTitle {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--on-surface-muted);
+}
+
+.dangerBtn {
+  all: unset;
+  cursor: pointer;
+  color: var(--error);
+  font-size: 12px;
+}
+
+.doorsComposer {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+}
+
+.doorsComposer select {
+  appearance: none;
+  border: 1px solid var(--outline-ghost);
+  background: #171717;
+  color: var(--on-surface);
+  border-radius: 10px;
+  padding: 9px 10px;
+  font-size: 13px;
+}
+
+.doorTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  all: unset;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--on-surface-muted);
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: var(--surface-high);
+  border: 1px solid var(--outline-ghost);
+}
+
+.validationPanel {
+  background: #1f1a16;
+  border: 1px solid rgba(233, 193, 118, 0.24);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.validationError,
+.validationWarn {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.validationError {
+  color: var(--error);
+}
+
+.validationWarn {
+  color: var(--warn);
+}
+
 .footer {
-  padding: 16px 24px 40px;
-  position: sticky;
-  bottom: 0;
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 10px;
+  padding: 14px 24px 34px;
   background: linear-gradient(to top, var(--bg) 70%, transparent);
+}
+
+.skipBtn {
+  all: unset;
+  text-align: center;
+  padding: 14px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--on-surface-muted);
+  background: var(--surface-high);
+  font-size: 14px;
 }
 
 .cta {
   all: unset;
-  display: block;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 16px;
   text-align: center;
-  border-radius: 9999px;
-  font-size: 16px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  padding: 14px 16px;
+  border-radius: 999px;
   cursor: pointer;
-  transition:
-    background 400ms var(--ease-premium),
-    color 400ms var(--ease-premium),
-    opacity 400ms var(--ease-premium),
-    box-shadow 400ms var(--ease-premium);
   background: var(--primary);
   color: var(--on-primary);
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .cta:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
   background: var(--surface-high);
   color: var(--on-surface-muted);
-  cursor: not-allowed;
-  opacity: 0.5;
 }
 
-.cta:not(:disabled):hover {
-  box-shadow: 0 4px 24px rgba(233, 193, 118, 0.3);
+@media (max-width: 380px) {
+  .inputsGrid,
+  .doorsComposer {
+    grid-template-columns: 1fr;
+  }
+
+  .footer {
+    grid-template-columns: 1fr;
+  }
 }
 
-.cta:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 3px;
-}
-
-/* ── Responsive ──────────────────────────────────── */
 @media (min-width: 480px) {
   .root {
     max-width: 430px;
