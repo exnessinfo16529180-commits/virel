@@ -4,6 +4,36 @@ export interface ConceptImage {
   error: string | null
 }
 
+export interface LayoutFileMeta {
+  name: string
+  size: number
+  type: string
+}
+
+export interface ManualRoom {
+  id: string
+  name: string
+  purpose: string
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+export interface ManualDoor {
+  id: string
+  fromRoomId: string
+  toRoomId: string
+  width: number
+}
+
+export interface ManualLayoutDraft {
+  totalArea: number | null
+  ceilingHeight: number | null
+  rooms: ManualRoom[]
+  doors: ManualDoor[]
+}
+
 export type ProjectType = 'new_build' | 'resale' | 'commercial'
 
 export type Scope = 'full' | 'partial' | 'design_only'
@@ -28,6 +58,8 @@ export interface FlowState {
   projectType?: ProjectType
   scope?: Scope
   layoutSource?: LayoutSource
+  layoutFile?: LayoutFileMeta
+  manualLayout?: ManualLayoutDraft
   atmosphere?: Atmosphere
   palette?: Palette
   style?: InteriorStyle
