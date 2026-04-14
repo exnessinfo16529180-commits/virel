@@ -56,7 +56,7 @@ export function MaterialsScreen({ initialState, onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 11 / 14</span>
+        <span className={styles.step}>Шаг 10 / 13</span>
       </header>
 
       <main className={styles.main}>

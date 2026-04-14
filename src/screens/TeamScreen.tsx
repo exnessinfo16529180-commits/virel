@@ -60,7 +60,7 @@ export function TeamScreen({ initialState, onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 12 / 14</span>
+        <span className={styles.step}>Шаг 11 / 13</span>
       </header>
 
       <main className={styles.main}>

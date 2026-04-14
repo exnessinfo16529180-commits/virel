@@ -47,7 +47,7 @@ export function StyleScreen({ initialState, onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 6 / 14</span>
+        <span className={styles.step}>Шаг 6 / 13</span>
       </header>
 
       <main className={styles.main}>
