@@ -145,7 +145,7 @@ export function ConceptsScreen({ initialState, onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 9 / 14</span>
+        <span className={styles.step}>Шаг 9 / 13</span>
       </header>
 
       <main className={styles.main}>

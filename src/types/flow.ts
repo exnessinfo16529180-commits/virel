@@ -20,10 +20,21 @@ export interface ManualRoom {
   height: number
 }
 
+export type WallSide = 'top' | 'right' | 'bottom' | 'left'
+
 export interface ManualDoor {
   id: string
-  fromRoomId: string
-  toRoomId: string
+  roomId: string
+  side: WallSide
+  offset: number
+  width: number
+}
+
+export interface ManualWindow {
+  id: string
+  roomId: string
+  side: WallSide
+  offset: number
   width: number
 }
 
@@ -32,6 +43,7 @@ export interface ManualLayoutDraft {
   ceilingHeight: number | null
   rooms: ManualRoom[]
   doors: ManualDoor[]
+  windows: ManualWindow[]
 }
 
 export type ProjectType = 'new_build' | 'resale' | 'commercial'

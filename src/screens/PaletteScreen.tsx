@@ -49,7 +49,7 @@ export function PaletteScreen({ initialState, onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 5 / 14</span>
+        <span className={styles.step}>Шаг 5 / 13</span>
       </header>
 
       <main className={styles.main}>

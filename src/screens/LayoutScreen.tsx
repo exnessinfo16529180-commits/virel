@@ -7,6 +7,8 @@ import type {
   ManualDoor,
   ManualLayoutDraft,
   ManualRoom,
+  ManualWindow,
+  WallSide,
 } from '../types/flow'
 import styles from './LayoutScreen.module.css'
 
@@ -17,13 +19,33 @@ interface Props {
 
 const BOARD_WIDTH = 320
 const BOARD_HEIGHT = 220
-const MIN_ROOM_SIZE = 48
+const MIN_ROOM_SIZE = 44
+const SIDES: WallSide[] = ['top', 'right', 'bottom', 'left']
+
+type ToolMode = 'move' | 'door' | 'window'
+
+interface RoomTemplate {
+  name: string
+  purpose: string
+  width: number
+  height: number
+}
+
+const ROOM_TEMPLATES: RoomTemplate[] = [
+  { name: 'Гостиная', purpose: 'Жилая', width: 120, height: 88 },
+  { name: 'Спальня', purpose: 'Жилая', width: 92, height: 74 },
+  { name: 'Кухня', purpose: 'Кухня', width: 88, height: 68 },
+  { name: 'Санузел', purpose: 'Санузел', width: 64, height: 56 },
+  { name: 'Коридор', purpose: 'Коридор', width: 80, height: 50 },
+]
+
+const PURPOSES = ['Жилая', 'Кухня', 'Санузел', 'Коридор', 'Кабинет', 'Гардероб']
 
 function uid(prefix: string) {
   return `${prefix}_${Math.random().toString(36).slice(2, 9)}`
 }
 
-function UploadIcon() {
+function UploadIcon(): ReactElement {
   return (
     <svg width="32" height="32" viewBox="0 0 36 36" fill="none" aria-hidden="true">
       <rect x="7" y="4" width="22" height="24" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
@@ -33,19 +55,19 @@ function UploadIcon() {
   )
 }
 
-function ManualIcon() {
+function ManualIcon(): ReactElement {
   return (
     <svg width="32" height="32" viewBox="0 0 36 36" fill="none" aria-hidden="true">
       <rect x="4" y="4" width="28" height="22" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
       <line x1="18" y1="4" x2="18" y2="26" stroke="currentColor" strokeWidth="1.25"/>
       <line x1="4" y1="15" x2="32" y2="15" stroke="currentColor" strokeWidth="1.25"/>
-      <path d="M26 30L28 28L30 30L28 32L26 30Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
-      <line x1="28" y1="28" x2="23" y2="33" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+      <circle cx="28" cy="30" r="2.2" stroke="currentColor" strokeWidth="1.2" />
+      <line x1="24" y1="30" x2="32" y2="30" stroke="currentColor" strokeWidth="1.2" />
     </svg>
   )
 }
 
-function LaterIcon() {
+function LaterIcon(): ReactElement {
   return (
     <svg width="32" height="32" viewBox="0 0 36 36" fill="none" aria-hidden="true">
       <rect x="7" y="5" width="22" height="26" rx="1.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 2.5"/>
@@ -70,18 +92,16 @@ const OPTIONS: { value: LayoutSource; label: string; sub: string; Icon: () => Re
   {
     value: 'manual',
     label: 'Собрать вручную',
-    sub: 'Комнаты, размеры и двери в 2D-конструкторе',
+    sub: 'Room planner с комнатами, дверями и окнами',
     Icon: ManualIcon,
   },
   {
     value: 'later',
     label: 'Пропустить пока',
-    sub: 'Продолжим без плана (точность ниже)',
+    sub: 'Продолжить без точной планировки',
     Icon: LaterIcon,
   },
 ]
-
-const PURPOSES = ['Жилая', 'Кухня', 'Санузел', 'Коридор', 'Кабинет', 'Гардероб']
 
 function rectsOverlap(a: ManualRoom, b: ManualRoom) {
   return (
@@ -92,38 +112,59 @@ function rectsOverlap(a: ManualRoom, b: ManualRoom) {
   )
 }
 
-function fmtMb(bytes: number) {
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+function openingStyle(kind: 'door' | 'window', side: WallSide, offset: number, openingWidth: number, room: ManualRoom) {
+  const color = kind === 'door' ? '#e9c176' : '#9cc8ff'
+  const base = {
+    background: color,
+  } as React.CSSProperties
+
+  if (side === 'top' || side === 'bottom') {
+    const ratio = Math.max(0.08, Math.min(0.8, openingWidth / room.width))
+    const left = Math.max(0, Math.min(1 - ratio, offset - ratio / 2)) * 100
+    return {
+      ...base,
+      left: `${left}%`,
+      width: `${ratio * 100}%`,
+      height: '3px',
+      [side]: '-2px',
+    } as React.CSSProperties
+  }
+
+  const ratio = Math.max(0.08, Math.min(0.8, openingWidth / room.height))
+  const top = Math.max(0, Math.min(1 - ratio, offset - ratio / 2)) * 100
+  return {
+    ...base,
+    top: `${top}%`,
+    height: `${ratio * 100}%`,
+    width: '3px',
+    [side]: '-2px',
+  } as React.CSSProperties
 }
 
-function createDefaultRoom(index: number): ManualRoom {
+function defaultManualLayout(initial?: ManualLayoutDraft): ManualLayoutDraft {
+  if (initial) {
+    return {
+      ...initial,
+      windows: initial.windows ?? [],
+    }
+  }
   return {
-    id: uid('room'),
-    name: `Комната ${index + 1}`,
-    purpose: index === 0 ? 'Жилая' : 'Кухня',
-    x: 24 + (index % 3) * 34,
-    y: 20 + (index % 2) * 28,
-    width: 96,
-    height: 72,
+    totalArea: null,
+    ceilingHeight: null,
+    rooms: [],
+    doors: [],
+    windows: [],
   }
 }
 
 export function LayoutScreen({ initialState, onNext }: Props) {
   const [selected, setSelected] = useState<LayoutSource | undefined>(initialState?.layoutSource)
   const [layoutFile, setLayoutFile] = useState<LayoutFileMeta | undefined>(initialState?.layoutFile)
-  const [manual, setManual] = useState<ManualLayoutDraft>(
-    initialState?.manualLayout ?? {
-      totalArea: null,
-      ceilingHeight: null,
-      rooms: [createDefaultRoom(0)],
-      doors: [],
-    },
-  )
-  const [activeRoomId, setActiveRoomId] = useState<string | null>(
-    initialState?.manualLayout?.rooms[0]?.id ?? null,
-  )
-  const [doorFromRoomId, setDoorFromRoomId] = useState<string>('')
-  const [doorToRoomId, setDoorToRoomId] = useState<string>('')
+  const [manual, setManual] = useState<ManualLayoutDraft>(defaultManualLayout(initialState?.manualLayout))
+  const [activeRoomId, setActiveRoomId] = useState<string | null>(initialState?.manualLayout?.rooms[0]?.id ?? null)
+  const [toolMode, setToolMode] = useState<ToolMode>('move')
+  const [selectedSide, setSelectedSide] = useState<WallSide>('top')
+  const [openingWidth, setOpeningWidth] = useState<number>(90)
   const [dragState, setDragState] = useState<{
     roomId: string
     startClientX: number
@@ -134,8 +175,61 @@ export function LayoutScreen({ initialState, onNext }: Props) {
 
   const boardRef = useRef<HTMLDivElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
-
   const activeRoom = manual.rooms.find(r => r.id === activeRoomId) ?? null
+
+  const addRoom = (template: RoomTemplate) => {
+    const next: ManualRoom = {
+      id: uid('room'),
+      name: template.name,
+      purpose: template.purpose,
+      width: template.width,
+      height: template.height,
+      x: 20 + (manual.rooms.length % 4) * 24,
+      y: 16 + (manual.rooms.length % 3) * 22,
+    }
+    setManual(prev => ({ ...prev, rooms: [...prev.rooms, next] }))
+    setActiveRoomId(next.id)
+  }
+
+  const addOpening = (kind: 'door' | 'window', roomId: string) => {
+    if (kind === 'door') {
+      const next: ManualDoor = {
+        id: uid('door'),
+        roomId,
+        side: selectedSide,
+        offset: 0.5,
+        width: openingWidth,
+      }
+      setManual(prev => ({ ...prev, doors: [...prev.doors, next] }))
+      return
+    }
+
+    const next: ManualWindow = {
+      id: uid('window'),
+      roomId,
+      side: selectedSide,
+      offset: 0.5,
+      width: openingWidth,
+    }
+    setManual(prev => ({ ...prev, windows: [...prev.windows, next] }))
+  }
+
+  const updateRoom = (id: string, patch: Partial<ManualRoom>) => {
+    setManual(prev => ({
+      ...prev,
+      rooms: prev.rooms.map(room => (room.id === id ? { ...room, ...patch } : room)),
+    }))
+  }
+
+  const removeRoom = (roomId: string) => {
+    setManual(prev => ({
+      ...prev,
+      rooms: prev.rooms.filter(room => room.id !== roomId),
+      doors: prev.doors.filter(door => door.roomId !== roomId),
+      windows: prev.windows.filter(window => window.roomId !== roomId),
+    }))
+    setActiveRoomId(prev => (prev === roomId ? null : prev))
+  }
 
   const validation = useMemo(() => {
     const blocking: string[] = []
@@ -147,30 +241,20 @@ export function LayoutScreen({ initialState, onNext }: Props) {
     }
 
     if (selected === 'upload') {
-      if (!layoutFile) {
-        blocking.push('Добавьте файл планировки перед продолжением.')
-      }
+      if (!layoutFile) blocking.push('Добавьте файл планировки.')
       return { blocking, warnings }
     }
 
     if (selected === 'manual') {
-      if (manual.rooms.length === 0) {
-        blocking.push('Добавьте минимум одну комнату.')
-      }
-      if (!manual.totalArea || manual.totalArea <= 0) {
-        blocking.push('Укажите общую площадь в м².')
-      }
-      if (!manual.ceilingHeight || manual.ceilingHeight <= 0) {
-        blocking.push('Укажите высоту потолков.')
-      }
-      if (manual.rooms.length > 1 && manual.doors.length === 0) {
-        blocking.push('Добавьте минимум одну дверь между комнатами.')
-      }
+      if (manual.rooms.length === 0) blocking.push('Добавьте минимум одну комнату.')
+      if (!manual.totalArea || manual.totalArea <= 0) blocking.push('Укажите общую площадь (м²).')
+      if (!manual.ceilingHeight || manual.ceilingHeight <= 0) blocking.push('Укажите высоту потолков.')
+      if (manual.doors.length === 0) blocking.push('Добавьте хотя бы одну дверь.')
 
       for (let i = 0; i < manual.rooms.length; i += 1) {
         const room = manual.rooms[i]
         if (room.width < MIN_ROOM_SIZE || room.height < MIN_ROOM_SIZE) {
-          blocking.push(`"${room.name}" слишком маленькая. Минимум 48×48.`)
+          blocking.push(`"${room.name}" слишком маленькая. Минимум 44×44.`)
           break
         }
       }
@@ -185,17 +269,13 @@ export function LayoutScreen({ initialState, onNext }: Props) {
         }
       }
 
-      if (manual.totalArea && manual.totalArea > 0) {
-        const roomsArea = manual.rooms.reduce((sum, room) => sum + (room.width * room.height) / 100, 0)
-        const diffRatio = Math.abs(roomsArea - manual.totalArea) / manual.totalArea
-        if (diffRatio > 0.35) {
-          warnings.push('Сумма площадей комнат сильно отличается от общей площади. Проверьте размеры.')
-        }
+      if (manual.windows.length === 0) {
+        warnings.push('Не добавлены окна. Освещённость может быть оценена неточно.')
       }
     }
 
     if (selected === 'later') {
-      warnings.push('Без планировки точность сметы и концептов будет ниже.')
+      warnings.push('Без плана точность сметы и визуализаций будет ниже.')
     }
 
     return { blocking, warnings }
@@ -210,7 +290,6 @@ export function LayoutScreen({ initialState, onNext }: Props) {
       const rect = board.getBoundingClientRect()
       const scaleX = rect.width / BOARD_WIDTH
       const scaleY = rect.height / BOARD_HEIGHT
-
       const dx = (e.clientX - dragState.startClientX) / scaleX
       const dy = (e.clientY - dragState.startClientY) / scaleY
 
@@ -218,9 +297,9 @@ export function LayoutScreen({ initialState, onNext }: Props) {
         ...prev,
         rooms: prev.rooms.map(room => {
           if (room.id !== dragState.roomId) return room
-          const nextX = Math.max(0, Math.min(BOARD_WIDTH - room.width, dragState.startRoomX + dx))
-          const nextY = Math.max(0, Math.min(BOARD_HEIGHT - room.height, dragState.startRoomY + dy))
-          return { ...room, x: Math.round(nextX), y: Math.round(nextY) }
+          const x = Math.max(0, Math.min(BOARD_WIDTH - room.width, dragState.startRoomX + dx))
+          const y = Math.max(0, Math.min(BOARD_HEIGHT - room.height, dragState.startRoomY + dy))
+          return { ...room, x: Math.round(x), y: Math.round(y) }
         }),
       }))
     }
@@ -234,43 +313,9 @@ export function LayoutScreen({ initialState, onNext }: Props) {
     }
   }, [dragState])
 
-  const updateRoom = (id: string, patch: Partial<ManualRoom>) => {
-    setManual(prev => ({
-      ...prev,
-      rooms: prev.rooms.map(room => (room.id === id ? { ...room, ...patch } : room)),
-    }))
-  }
+  const canContinue = selected !== undefined && validation.blocking.length === 0
 
-  const removeRoom = (id: string) => {
-    setManual(prev => ({
-      ...prev,
-      rooms: prev.rooms.filter(room => room.id !== id),
-      doors: prev.doors.filter(door => door.fromRoomId !== id && door.toRoomId !== id),
-    }))
-    setActiveRoomId(prev => (prev === id ? null : prev))
-  }
-
-  const addDoor = () => {
-    if (!doorFromRoomId || !doorToRoomId || doorFromRoomId === doorToRoomId) return
-    const exists = manual.doors.some(
-      door =>
-        (door.fromRoomId === doorFromRoomId && door.toRoomId === doorToRoomId) ||
-        (door.fromRoomId === doorToRoomId && door.toRoomId === doorFromRoomId),
-    )
-    if (exists) return
-
-    const nextDoor: ManualDoor = {
-      id: uid('door'),
-      fromRoomId: doorFromRoomId,
-      toRoomId: doorToRoomId,
-      width: 90,
-    }
-    setManual(prev => ({ ...prev, doors: [...prev.doors, nextDoor] }))
-    setDoorFromRoomId('')
-    setDoorToRoomId('')
-  }
-
-  const handleContinue = () => {
+  const continueFlow = () => {
     if (selected === 'upload') {
       onNext({ layoutSource: 'upload', layoutFile, manualLayout: undefined })
       return
@@ -282,18 +327,16 @@ export function LayoutScreen({ initialState, onNext }: Props) {
     onNext({ layoutSource: 'later', layoutFile: undefined, manualLayout: undefined })
   }
 
-  const canContinue = selected !== undefined && validation.blocking.length === 0
-
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 3 / 14</span>
+        <span className={styles.step}>Шаг 3 / 13</span>
       </header>
 
       <main className={styles.main}>
         <div className={styles.intro}>
           <h1 className={styles.headline}>Планировка и размеры</h1>
-          <p className={styles.description}>Передайте план документом или соберите вручную в 2D</p>
+          <p className={styles.description}>Соберите план как в room planner: комнаты, двери и окна</p>
         </div>
 
         <div className={styles.cards} role="group" aria-label="Способ передачи планировки">
@@ -306,14 +349,12 @@ export function LayoutScreen({ initialState, onNext }: Props) {
                 onClick={() => setSelected(value)}
                 aria-pressed={isSelected}
               >
-                <div className={styles.iconWrap}>
-                  <Icon />
-                </div>
+                <div className={styles.iconWrap}><Icon /></div>
                 <div className={styles.cardText}>
                   <span className={styles.cardLabel}>{label}</span>
                   <span className={styles.cardSub}>{sub}</span>
                 </div>
-                <div className={`${styles.dot} ${isSelected ? styles.dotSelected : ''}`} aria-hidden="true" />
+                <div className={`${styles.dot} ${isSelected ? styles.dotSelected : ''}`} />
               </button>
             )
           })}
@@ -324,28 +365,23 @@ export function LayoutScreen({ initialState, onNext }: Props) {
             <h2 className={styles.panelTitle}>Файл планировки</h2>
             <input
               ref={fileInputRef}
-              type="file"
-              accept=".pdf,.png,.jpg,.jpeg"
               className={styles.hiddenInput}
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png"
               onChange={(e) => {
                 const file = e.target.files?.[0]
                 if (!file) return
-                setLayoutFile({
-                  name: file.name,
-                  size: file.size,
-                  type: file.type || 'unknown',
-                })
+                setLayoutFile({ name: file.name, size: file.size, type: file.type || 'unknown' })
               }}
             />
             <button className={styles.uploadZone} onClick={() => fileInputRef.current?.click()}>
-              <span className={styles.uploadBig}>Перетащите файл или нажмите для выбора</span>
-              <span className={styles.uploadSmall}>PDF / JPG / PNG, до 20MB</span>
+              <span className={styles.uploadBig}>Нажмите для выбора файла</span>
+              <span className={styles.uploadSmall}>PDF/JPG/PNG до 20MB</span>
             </button>
-
             {layoutFile && (
               <div className={styles.fileMeta}>
                 <span>{layoutFile.name}</span>
-                <span>{fmtMb(layoutFile.size)}</span>
+                <span>{(layoutFile.size / (1024 * 1024)).toFixed(1)} MB</span>
               </div>
             )}
           </section>
@@ -353,7 +389,7 @@ export function LayoutScreen({ initialState, onNext }: Props) {
 
         {selected === 'manual' && (
           <section className={styles.panel}>
-            <h2 className={styles.panelTitle}>2D-конструктор</h2>
+            <h2 className={styles.panelTitle}>Room Planner</h2>
 
             <div className={styles.inputsGrid}>
               <label className={styles.field}>
@@ -385,6 +421,27 @@ export function LayoutScreen({ initialState, onNext }: Props) {
               </label>
             </div>
 
+            <div className={styles.toolsRow}>
+              <span className={styles.toolTitle}>Режим:</span>
+              <button className={`${styles.modeBtn} ${toolMode === 'move' ? styles.modeBtnActive : ''}`} onClick={() => setToolMode('move')}>
+                Двигать
+              </button>
+              <button className={`${styles.modeBtn} ${toolMode === 'door' ? styles.modeBtnActive : ''}`} onClick={() => setToolMode('door')}>
+                Дверь
+              </button>
+              <button className={`${styles.modeBtn} ${toolMode === 'window' ? styles.modeBtnActive : ''}`} onClick={() => setToolMode('window')}>
+                Окно
+              </button>
+            </div>
+
+            <div className={styles.templateRow}>
+              {ROOM_TEMPLATES.map(t => (
+                <button key={t.name} className={styles.templateChip} onClick={() => addRoom(t)}>
+                  + {t.name}
+                </button>
+              ))}
+            </div>
+
             <div ref={boardRef} className={styles.board}>
               {manual.rooms.map(room => (
                 <button
@@ -396,8 +453,14 @@ export function LayoutScreen({ initialState, onNext }: Props) {
                     width: `${(room.width / BOARD_WIDTH) * 100}%`,
                     height: `${(room.height / BOARD_HEIGHT) * 100}%`,
                   }}
-                  onClick={() => setActiveRoomId(room.id)}
+                  onClick={() => {
+                    setActiveRoomId(room.id)
+                    if (toolMode === 'door' || toolMode === 'window') {
+                      addOpening(toolMode, room.id)
+                    }
+                  }}
                   onPointerDown={(e) => {
+                    if (toolMode !== 'move') return
                     setActiveRoomId(room.id)
                     setDragState({
                       roomId: room.id,
@@ -410,48 +473,25 @@ export function LayoutScreen({ initialState, onNext }: Props) {
                 >
                   <span className={styles.roomName}>{room.name}</span>
                   <span className={styles.roomDims}>{room.width}×{room.height}</span>
+
+                  {manual.doors
+                    .filter(d => d.roomId === room.id)
+                    .map(door => (
+                      <span key={door.id} className={styles.opening} style={openingStyle('door', door.side, door.offset, door.width, room)} />
+                    ))}
+
+                  {manual.windows
+                    .filter(w => w.roomId === room.id)
+                    .map(windowItem => (
+                      <span key={windowItem.id} className={styles.opening} style={openingStyle('window', windowItem.side, windowItem.offset, windowItem.width, room)} />
+                    ))}
                 </button>
               ))}
-
-              <svg className={styles.doorsSvg} viewBox={`0 0 ${BOARD_WIDTH} ${BOARD_HEIGHT}`} preserveAspectRatio="none">
-                {manual.doors.map(door => {
-                  const from = manual.rooms.find(r => r.id === door.fromRoomId)
-                  const to = manual.rooms.find(r => r.id === door.toRoomId)
-                  if (!from || !to) return null
-                  const x1 = from.x + from.width / 2
-                  const y1 = from.y + from.height / 2
-                  const x2 = to.x + to.width / 2
-                  const y2 = to.y + to.height / 2
-                  return (
-                    <line
-                      key={door.id}
-                      x1={x1}
-                      y1={y1}
-                      x2={x2}
-                      y2={y2}
-                      className={styles.doorLine}
-                    />
-                  )
-                })}
-              </svg>
-            </div>
-
-            <div className={styles.roomsRow}>
-              <button
-                className={styles.ghostBtn}
-                onClick={() => {
-                  const next = createDefaultRoom(manual.rooms.length)
-                  setManual(prev => ({ ...prev, rooms: [...prev.rooms, next] }))
-                  setActiveRoomId(next.id)
-                }}
-              >
-                + Добавить комнату
-              </button>
             </div>
 
             {activeRoom && (
               <div className={styles.roomEditor}>
-                <h3 className={styles.subTitle}>Настройки комнаты</h3>
+                <h3 className={styles.subTitle}>Активная комната</h3>
                 <div className={styles.inputsGrid}>
                   <label className={styles.field}>
                     <span>Название</span>
@@ -460,30 +500,8 @@ export function LayoutScreen({ initialState, onNext }: Props) {
                   <label className={styles.field}>
                     <span>Назначение</span>
                     <select value={activeRoom.purpose} onChange={(e) => updateRoom(activeRoom.id, { purpose: e.currentTarget.value })}>
-                      {PURPOSES.map(purpose => (
-                        <option key={purpose} value={purpose}>{purpose}</option>
-                      ))}
+                      {PURPOSES.map(p => <option key={p} value={p}>{p}</option>)}
                     </select>
-                  </label>
-                  <label className={styles.field}>
-                    <span>X</span>
-                    <input
-                      type="number"
-                      min={0}
-                      max={BOARD_WIDTH - activeRoom.width}
-                      value={activeRoom.x}
-                      onChange={(e) => updateRoom(activeRoom.id, { x: Number(e.currentTarget.value) })}
-                    />
-                  </label>
-                  <label className={styles.field}>
-                    <span>Y</span>
-                    <input
-                      type="number"
-                      min={0}
-                      max={BOARD_HEIGHT - activeRoom.height}
-                      value={activeRoom.y}
-                      onChange={(e) => updateRoom(activeRoom.id, { y: Number(e.currentTarget.value) })}
-                    />
                   </label>
                   <label className={styles.field}>
                     <span>Ширина</span>
@@ -506,52 +524,53 @@ export function LayoutScreen({ initialState, onNext }: Props) {
                     />
                   </label>
                 </div>
-                {manual.rooms.length > 1 && (
-                  <button className={styles.dangerBtn} onClick={() => removeRoom(activeRoom.id)}>
-                    Удалить комнату
-                  </button>
-                )}
+
+                <div className={styles.toolsRow}>
+                  <span className={styles.toolTitle}>Сторона:</span>
+                  {SIDES.map(side => (
+                    <button key={side} className={`${styles.sideBtn} ${selectedSide === side ? styles.sideBtnActive : ''}`} onClick={() => setSelectedSide(side)}>
+                      {side}
+                    </button>
+                  ))}
+                </div>
+                <label className={styles.field}>
+                  <span>Ширина проёма / окна (см)</span>
+                  <input
+                    type="number"
+                    min={60}
+                    max={160}
+                    step={5}
+                    value={openingWidth}
+                    onChange={(e) => setOpeningWidth(Number(e.currentTarget.value))}
+                  />
+                </label>
+
+                <div className={styles.doorTags}>
+                  {manual.doors.filter(d => d.roomId === activeRoom.id).map(door => (
+                    <button
+                      key={door.id}
+                      className={styles.tag}
+                      onClick={() => setManual(prev => ({ ...prev, doors: prev.doors.filter(d => d.id !== door.id) }))}
+                    >
+                      Дверь {door.side} ×{door.width}
+                    </button>
+                  ))}
+                  {manual.windows.filter(w => w.roomId === activeRoom.id).map(windowItem => (
+                    <button
+                      key={windowItem.id}
+                      className={styles.tag}
+                      onClick={() => setManual(prev => ({ ...prev, windows: prev.windows.filter(w => w.id !== windowItem.id) }))}
+                    >
+                      Окно {windowItem.side} ×{windowItem.width}
+                    </button>
+                  ))}
+                </div>
+
+                <button className={styles.dangerBtn} onClick={() => removeRoom(activeRoom.id)}>
+                  Удалить комнату
+                </button>
               </div>
             )}
-
-            <div className={styles.roomEditor}>
-              <h3 className={styles.subTitle}>Двери между комнатами</h3>
-              <div className={styles.doorsComposer}>
-                <select value={doorFromRoomId} onChange={(e) => setDoorFromRoomId(e.currentTarget.value)}>
-                  <option value="">Из комнаты</option>
-                  {manual.rooms.map(room => (
-                    <option key={room.id} value={room.id}>{room.name}</option>
-                  ))}
-                </select>
-                <select value={doorToRoomId} onChange={(e) => setDoorToRoomId(e.currentTarget.value)}>
-                  <option value="">В комнату</option>
-                  {manual.rooms.map(room => (
-                    <option key={room.id} value={room.id}>{room.name}</option>
-                  ))}
-                </select>
-                <button className={styles.ghostBtn} onClick={addDoor}>+ Дверь</button>
-              </div>
-
-              {manual.doors.length > 0 && (
-                <div className={styles.doorTags}>
-                  {manual.doors.map(door => {
-                    const from = manual.rooms.find(room => room.id === door.fromRoomId)?.name ?? 'Комната'
-                    const to = manual.rooms.find(room => room.id === door.toRoomId)?.name ?? 'Комната'
-                    return (
-                      <button
-                        key={door.id}
-                        className={styles.tag}
-                        onClick={() => {
-                          setManual(prev => ({ ...prev, doors: prev.doors.filter(d => d.id !== door.id) }))
-                        }}
-                      >
-                        {from} ↔ {to}
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
           </section>
         )}
 
@@ -571,7 +590,7 @@ export function LayoutScreen({ initialState, onNext }: Props) {
         <button className={styles.skipBtn} onClick={() => onNext({ layoutSource: 'later', layoutFile: undefined, manualLayout: undefined })}>
           Пропустить
         </button>
-        <button className={styles.cta} disabled={!canContinue} onClick={handleContinue}>
+        <button className={styles.cta} disabled={!canContinue} onClick={continueFlow}>
           Продолжить
         </button>
       </footer>

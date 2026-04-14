@@ -47,7 +47,7 @@ export function AtmosphereScreen({ initialState, onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 4 / 14</span>
+        <span className={styles.step}>Шаг 4 / 13</span>
       </header>
 
       <main className={styles.main}>

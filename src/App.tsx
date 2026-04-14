@@ -8,7 +8,6 @@ import { StyleScreen } from './screens/StyleScreen'
 import { BudgetScreen } from './screens/BudgetScreen'
 import { ProcessingScreen } from './screens/ProcessingScreen'
 import { ConceptsScreen } from './screens/ConceptsScreen'
-import { EstimateScreen } from './screens/EstimateScreen'
 import { MaterialsScreen } from './screens/MaterialsScreen'
 import { TeamScreen } from './screens/TeamScreen'
 import { SummaryScreen } from './screens/SummaryScreen'
@@ -61,22 +60,18 @@ function App() {
   }
 
   if (step === 10) {
-    return <EstimateScreen initialState={flowState} onNext={handleNext} />
-  }
-
-  if (step === 11) {
     return <MaterialsScreen initialState={flowState} onNext={handleNext} />
   }
 
-  if (step === 12) {
+  if (step === 11) {
     return <TeamScreen initialState={flowState} onNext={handleNext} />
   }
 
-  if (step === 13) {
+  if (step === 12) {
     return <SummaryScreen initialState={flowState} onNext={handleNext} />
   }
 
-  // step === 14 is the terminal screen — ContractScreen handles its own success state
+  // step === 13 is the terminal screen — ContractScreen handles its own success state
   return <ContractScreen initialState={flowState} onNext={handleNext} />
 }
 

@@ -33,7 +33,7 @@ export function BudgetScreen({ initialState, onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 7 / 14</span>
+        <span className={styles.step}>Шаг 7 / 13</span>
       </header>
 
       <main className={styles.main}>
