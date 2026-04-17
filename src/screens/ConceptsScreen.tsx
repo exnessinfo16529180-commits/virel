@@ -120,7 +120,9 @@ export function ConceptsScreen({ initialState, onNext }: Props) {
   )
   const [isRetrying, setIsRetrying] = useState(false)
   const [retryFailed, setRetryFailed] = useState(false)
-  const [debugInfo, setDebugInfo] = useState<GenerationDebug | undefined>(undefined)
+  const [debugInfo, setDebugInfo] = useState<GenerationDebug | undefined>(
+    initialState?.conceptGenerationDebug,
+  )
 
   // Show error banner whenever no real image URL exists:
   // covers undefined (network failure before ProcessingScreen passed data),

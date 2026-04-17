@@ -132,6 +132,28 @@ export default async function handler(req, res) {
     timestamp: new Date().toISOString(),
   }
 
+  // Guard against Vercel's 4.5 MB response limit (base64 images can be large)
+  const PAYLOAD_WARN_BYTES = 3.5 * 1024 * 1024
+  const approxBytes = images.reduce((sum, img) => {
+    return sum + (img.url ? img.url.length : 0)
+  }, 0)
+  if (approxBytes > PAYLOAD_WARN_BYTES) {
+    console.warn(
+      `[generate-concepts] response payload ~${(approxBytes / 1024 / 1024).toFixed(1)} MB — ` +
+      `exceeds ${(PAYLOAD_WARN_BYTES / 1024 / 1024).toFixed(1)} MB warning threshold`,
+    )
+    // Replace real images with a controlled error so the client gets a clean failure
+    // rather than a silent connection abort from Vercel's size limiter.
+    const oversize = images.map(img =>
+      img.url ? { ...img, url: null, error: 'Response payload too large (>3.5 MB)' } : img,
+    )
+    return res.status(200).json({
+      images: oversize,
+      debug: { ...debug, reasons: debug.reasons.map(() => 'payload-too-large') },
+      debugSummary: 'Response payload exceeded 3.5 MB limit — images omitted',
+    })
+  }
+
   res.status(200).json({
     images,
     debug,
