@@ -89,6 +89,13 @@ export interface FlowState {
   materialsPackage?: 'basic' | 'optimal' | 'premium'
   teamPackage?: 'econom' | 'balanced' | 'premium'
   conceptImages?: ConceptImage[]
+  conceptGenerationDebug?: {
+    model: string
+    statuses: (number | string)[]
+    reasons: string[]
+    timestamp?: string
+    debugSummary?: string
+  }
   consentAccepted?: boolean
   projectLaunched?: boolean
 }

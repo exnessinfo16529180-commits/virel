@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import type { FlowState, ConceptImage } from '../types/flow'
+import type { FlowState } from '../types/flow'
 import { generateConceptImages } from '../services/conceptImages'
+import type { GenerationResult } from '../services/conceptImages'
 import styles from './ProcessingScreen.module.css'
 
 interface Props {
@@ -42,7 +43,8 @@ function PendingIcon() {
 
 export function ProcessingScreen({ initialState, onNext }: Props) {
   const [completedCount, setCompletedCount] = useState(0)
-  const conceptImagesRef = useRef<ConceptImage[] | null>(null)
+  const [generationDone, setGenerationDone] = useState(false)
+  const generationResultRef = useRef<GenerationResult | null>(null)
   const generationStarted = useRef(false)
 
   // Stage timer — deterministic 1200ms per stage
@@ -60,24 +62,37 @@ export function ProcessingScreen({ initialState, onNext }: Props) {
     generationStarted.current = true
 
     generateConceptImages(initialState ?? {}).then(result => {
-      conceptImagesRef.current = result.images
+      generationResultRef.current = result
+      setGenerationDone(true)
     }).catch(() => {
-      // Errors are handled inside generateConceptImages (returns null URLs)
-      conceptImagesRef.current = null
+      // generateConceptImages never rejects — this is a safety net
+      generationResultRef.current = null
+      setGenerationDone(true)
     })
   }, [initialState])
 
-  const isDone = completedCount >= STAGE_LABELS.length
-  const activeIndex = isDone ? -1 : completedCount
+  const stagesDone = completedCount >= STAGE_LABELS.length
+  const isDone = stagesDone && generationDone
+  const activeIndex = stagesDone ? -1 : completedCount
+
+  const ctaLabel = !stagesDone
+    ? 'Продолжить'
+    : !generationDone
+      ? 'Генерируем изображения…'
+      : 'Смотреть концепты'
 
   const handleNext = () => {
     if (!isDone) return
-    onNext({
+    const result = generationResultRef.current
+    const update: Partial<FlowState> = {
       processingDone:  true,
       processingStage: 4,
-      // Pass images if ready; Screen 9 handles null gracefully
-      ...(conceptImagesRef.current ? { conceptImages: conceptImagesRef.current } : {}),
-    })
+    }
+    if (result) {
+      update.conceptImages = result.images
+      if (result.debug) update.conceptGenerationDebug = result.debug
+    }
+    onNext(update)
   }
 
   return (
@@ -139,7 +154,7 @@ export function ProcessingScreen({ initialState, onNext }: Props) {
           disabled={!isDone}
           onClick={handleNext}
         >
-          {isDone ? 'Смотреть концепты' : 'Продолжить'}
+          {ctaLabel}
         </button>
       </footer>
     </div>

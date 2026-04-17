@@ -129,9 +129,17 @@ export async function generateConceptImages(
 
     return { images: data.images, allFailed, debug }
   } catch (err) {
-    // One automatic retry on failure
-    if (retryCount < 1) {
-      await new Promise(r => setTimeout(r, 1500))
+    const message = err instanceof Error ? err.message : 'Generation failed'
+
+    // No retry for auth/quota errors — they won't resolve on retry
+    const statusMatch = message.match(/API responded (\d+)/)
+    const httpStatus = statusMatch ? parseInt(statusMatch[1], 10) : null
+    const noRetryStatuses = [401, 403, 429]
+    const shouldRetry = retryCount < 1 && (httpStatus === null || !noRetryStatuses.includes(httpStatus))
+
+    if (shouldRetry) {
+      const backoff = retryCount === 0 ? 1500 : 3000
+      await new Promise(r => setTimeout(r, backoff))
       return generateConceptImages(state, retryCount + 1)
     }
 
@@ -141,7 +149,7 @@ export async function generateConceptImages(
       images: ids.map(conceptId => ({
         conceptId,
         url: null,
-        error: err instanceof Error ? err.message : 'Generation failed',
+        error: message,
       })),
       allFailed: true,
     }
