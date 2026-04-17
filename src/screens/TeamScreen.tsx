@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import type { FlowState } from '../types/flow'
+import { BackButton } from '../components/BackButton'
 import styles from './TeamScreen.module.css'
 
 interface Props {
   initialState?: FlowState
   onNext: (update: Partial<FlowState>) => void
+  onBack?: () => void
 }
 
 type TeamId = 'econom' | 'balanced' | 'premium'
@@ -52,7 +54,7 @@ const TEAMS: TeamOption[] = [
   },
 ]
 
-export function TeamScreen({ initialState, onNext }: Props) {
+export function TeamScreen({ initialState, onNext, onBack }: Props) {
   const [selected, setSelected] = useState<TeamId | undefined>(
     initialState?.teamPackage,
   )
@@ -60,7 +62,8 @@ export function TeamScreen({ initialState, onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 11 / 13</span>
+        {onBack && <BackButton onClick={onBack} />}
+        <span className={styles.step}>Шаг 12 / 16</span>
       </header>
 
       <main className={styles.main}>

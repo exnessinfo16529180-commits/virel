@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import type { FlowState, Scope } from '../types/flow'
+import { BackButton } from '../components/BackButton'
 import styles from './ScopeScreen.module.css'
 
 interface Props {
   initialState?: FlowState
   onNext: (update: Partial<FlowState>) => void
+  onBack?: () => void
 }
 
 function FullRenovationIcon() {
@@ -76,13 +78,14 @@ const OPTIONS: { value: Scope; label: string; sub: string; Icon: React.FC }[] = 
   },
 ]
 
-export function ScopeScreen({ initialState, onNext }: Props) {
+export function ScopeScreen({ initialState, onNext, onBack }: Props) {
   const [selected, setSelected] = useState<Scope | undefined>(initialState?.scope)
 
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 2 / 13</span>
+        {onBack && <BackButton onClick={onBack} />}
+        <span className={styles.step}>Шаг 2 / 16</span>
       </header>
 
       <main className={styles.main}>

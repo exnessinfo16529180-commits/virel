@@ -10,11 +10,13 @@ import type {
   ManualWindow,
   WallSide,
 } from '../types/flow'
+import { BackButton } from '../components/BackButton'
 import styles from './LayoutScreen.module.css'
 
 interface Props {
   initialState?: FlowState
   onNext: (update: Partial<FlowState>) => void
+  onBack?: () => void
 }
 
 const BOARD_WIDTH = 320
@@ -157,7 +159,7 @@ function defaultManualLayout(initial?: ManualLayoutDraft): ManualLayoutDraft {
   }
 }
 
-export function LayoutScreen({ initialState, onNext }: Props) {
+export function LayoutScreen({ initialState, onNext, onBack }: Props) {
   const [selected, setSelected] = useState<LayoutSource | undefined>(initialState?.layoutSource)
   const [layoutFile, setLayoutFile] = useState<LayoutFileMeta | undefined>(initialState?.layoutFile)
   const [manual, setManual] = useState<ManualLayoutDraft>(defaultManualLayout(initialState?.manualLayout))
@@ -330,7 +332,8 @@ export function LayoutScreen({ initialState, onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 3 / 13</span>
+        {onBack && <BackButton onClick={onBack} />}
+        <span className={styles.step}>Шаг 3 / 16</span>
       </header>
 
       <main className={styles.main}>

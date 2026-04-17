@@ -2,11 +2,13 @@ import { useState } from 'react'
 import type { FlowState, ConceptImage } from '../types/flow'
 import { generateConceptImages } from '../services/conceptImages'
 import type { GenerationDebug } from '../services/conceptImages'
+import { BackButton } from '../components/BackButton'
 import styles from './ConceptsScreen.module.css'
 
 interface Props {
   initialState?: FlowState
   onNext: (update: Partial<FlowState>) => void
+  onBack?: () => void
 }
 
 type ConceptId = 'concept_a' | 'concept_b' | 'concept_c'
@@ -111,7 +113,7 @@ function ConceptPreview({ image, fallbackClass, isRetrying }: PreviewProps) {
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-export function ConceptsScreen({ initialState, onNext }: Props) {
+export function ConceptsScreen({ initialState, onNext, onBack }: Props) {
   const [selected, setSelected] = useState<ConceptId | undefined>(
     initialState?.selectedConcept,
   )
@@ -147,7 +149,8 @@ export function ConceptsScreen({ initialState, onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 9 / 13</span>
+        {onBack && <BackButton onClick={onBack} />}
+        <span className={styles.step}>Шаг 9 / 16</span>
       </header>
 
       <main className={styles.main}>

@@ -1,4 +1,3 @@
-/* Virel design tokens — «Призрачный Монолит» */
 .root {
   --bg:               #131313;
   --surface-low:      #1c1b1b;
@@ -6,7 +5,9 @@
   --surface-high:     #2a2a2a;
   --surface-highest:  #353534;
   --primary:          #e9c176;
+  --primary-dim:      #c5a059;
   --on-primary:       #412d00;
+  --secondary:        #b4ccbb;
   --on-surface:       #e5e2e1;
   --on-surface-muted: #d1c5b4;
   --outline-ghost:    rgba(78, 70, 57, 0.18);
@@ -21,15 +22,8 @@
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   box-sizing: border-box;
-  animation: screenEnter 420ms var(--ease-premium) both;
 }
 
-@keyframes screenEnter {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Header ──────────────────────────────────────── */
 .header {
   padding: 52px 24px 0;
   display: flex;
@@ -38,7 +32,6 @@
 }
 
 .step {
-  display: inline-block;
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.12em;
@@ -46,13 +39,12 @@
   color: var(--on-surface-muted);
 }
 
-/* ── Main ────────────────────────────────────────── */
 .main {
   flex: 1;
   padding: 32px 24px 24px;
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 32px;
 }
 
 .intro {
@@ -77,7 +69,6 @@
   color: var(--on-surface-muted);
 }
 
-/* ── Cards ───────────────────────────────────────── */
 .cards {
   display: flex;
   flex-direction: column;
@@ -88,17 +79,18 @@
   all: unset;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
+  padding: 20px;
   background: var(--surface);
   border-radius: 20px;
   cursor: pointer;
-  box-sizing: border-box;
-  width: 100%;
-  padding: 18px 20px 20px;
   transition:
     background 400ms var(--ease-premium),
     box-shadow 400ms var(--ease-premium);
+  box-sizing: border-box;
+  width: 100%;
   text-align: left;
+  border: 1px solid transparent;
 }
 
 .card:hover {
@@ -112,62 +104,36 @@
 
 .cardSelected {
   background: var(--surface-high);
-  box-shadow:
-    0 0 0 1px rgba(233, 193, 118, 0.5),
-    0 8px 40px var(--glow-gold);
+  border-color: rgba(233, 193, 118, 0.25);
+  box-shadow: 0 4px 32px var(--glow-gold);
 }
 
-/* ── Card top row ────────────────────────────────── */
 .cardTop {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
 }
 
-.cardTopRight {
+.shopMeta {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
+  flex-direction: column;
+  gap: 3px;
 }
 
-/* ── Title ───────────────────────────────────────── */
-.title {
+.shopName {
   font-size: 17px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 1.3;
+  font-weight: 600;
   color: var(--on-surface);
-  transition: color 400ms var(--ease-premium);
+  letter-spacing: -0.01em;
 }
 
-.titleSelected {
-  color: var(--primary);
-}
-
-/* ── Cost tag pill ───────────────────────────────── */
-.costTag {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 9999px;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: lowercase;
-}
-
-.tagNeutral {
-  background: var(--surface-highest);
+.shopTag {
+  font-size: 12px;
   color: var(--on-surface-muted);
+  letter-spacing: 0.02em;
 }
 
-.tagGold {
-  background: rgba(233, 193, 118, 0.12);
-  color: var(--primary);
-}
-
-/* ── Dot indicator ───────────────────────────────── */
 .dot {
   flex-shrink: 0;
   width: 18px;
@@ -179,6 +145,7 @@
     background 300ms var(--ease-premium),
     border-color 300ms var(--ease-premium),
     box-shadow 300ms var(--ease-premium);
+  margin-top: 2px;
 }
 
 .dotSelected {
@@ -187,46 +154,62 @@
   box-shadow: 0 0 10px rgba(233, 193, 118, 0.4);
 }
 
-/* ── Description ─────────────────────────────────── */
-.desc {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.55;
-  color: var(--on-surface-muted);
+.cardBottom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-/* ── Meta rows ───────────────────────────────────── */
-.meta {
+.metaPill {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 5px;
-  padding-top: 4px;
+  padding: 5px 10px;
+  background: var(--surface-highest);
+  border-radius: 9999px;
 }
 
-.metaRow {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
+.metaIcon {
+  font-size: 12px;
+  line-height: 1;
 }
 
-.metaKey {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.metaText {
+  font-size: 12px;
   color: var(--on-surface-muted);
-  opacity: 0.5;
-  min-width: 68px;
+}
+
+.availDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
   flex-shrink: 0;
 }
 
-.metaVal {
+.dotGreen  { background: #4caf50; }
+.dotAmber  { background: #e9a030; }
+
+.priceTag {
+  margin-left: auto;
   font-size: 12px;
-  color: var(--on-surface-muted);
-  line-height: 1.4;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 9999px;
 }
 
-/* ── Footer / CTA ────────────────────────────────── */
+.priceNeutral { background: var(--surface-highest); color: var(--on-surface-muted); }
+.priceGold    { background: rgba(233, 193, 118, 0.12); color: var(--primary); }
+.priceGreen   { background: rgba(76, 175, 80, 0.12); color: #81c784; }
+
+.note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--on-surface-muted);
+  text-align: center;
+  opacity: 0.7;
+}
+
 .footer {
   padding: 16px 24px 40px;
   position: sticky;
@@ -248,7 +231,6 @@
   cursor: pointer;
   transition:
     background 400ms var(--ease-premium),
-    color 400ms var(--ease-premium),
     opacity 400ms var(--ease-premium),
     box-shadow 400ms var(--ease-premium);
   background: var(--primary);
@@ -271,10 +253,6 @@
   outline-offset: 3px;
 }
 
-/* ── Responsive ──────────────────────────────────── */
 @media (min-width: 480px) {
-  .root {
-    max-width: 430px;
-    margin: 0 auto;
-  }
+  .root { max-width: 430px; margin: 0 auto; }
 }

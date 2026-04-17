@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import type { FlowState, Atmosphere } from '../types/flow'
+import { BackButton } from '../components/BackButton'
 import styles from './AtmosphereScreen.module.css'
 
 interface Props {
   initialState?: FlowState
   onNext: (update: Partial<FlowState>) => void
+  onBack?: () => void
 }
 
 const OPTIONS: {
@@ -39,7 +41,7 @@ const OPTIONS: {
   },
 ]
 
-export function AtmosphereScreen({ initialState, onNext }: Props) {
+export function AtmosphereScreen({ initialState, onNext, onBack }: Props) {
   const [selected, setSelected] = useState<Atmosphere | undefined>(
     initialState?.atmosphere,
   )
@@ -47,7 +49,8 @@ export function AtmosphereScreen({ initialState, onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 4 / 13</span>
+        {onBack && <BackButton onClick={onBack} />}
+        <span className={styles.step}>Шаг 5 / 16</span>
       </header>
 
       <main className={styles.main}>

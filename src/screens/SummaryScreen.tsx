@@ -1,9 +1,11 @@
 import type { FlowState } from '../types/flow'
+import { BackButton } from '../components/BackButton'
 import styles from './SummaryScreen.module.css'
 
 interface Props {
   initialState?: FlowState
   onNext: (update: Partial<FlowState>) => void
+  onBack?: () => void
 }
 
 // ── Display label maps ────────────────────────────────────────────────────────
@@ -96,7 +98,7 @@ interface Group {
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 
-export function SummaryScreen({ initialState = {}, onNext }: Props) {
+export function SummaryScreen({ initialState = {}, onNext, onBack }: Props) {
   const s = initialState
   const layoutValue = (() => {
     if (s.layoutSource === 'upload') {
@@ -146,7 +148,8 @@ export function SummaryScreen({ initialState = {}, onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 12 / 13</span>
+        {onBack && <BackButton onClick={onBack} />}
+        <span className={styles.step}>Шаг 13 / 16</span>
       </header>
 
       <main className={styles.main}>
