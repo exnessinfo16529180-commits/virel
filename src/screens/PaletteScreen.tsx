@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import type { FlowState, Palette } from '../types/flow'
+import { BackButton } from '../components/BackButton'
 import styles from './PaletteScreen.module.css'
 
 interface Props {
   initialState?: FlowState
   onNext: (update: Partial<FlowState>) => void
+  onBack?: () => void
 }
 
 interface PaletteOption {
@@ -41,7 +43,7 @@ const OPTIONS: PaletteOption[] = [
   },
 ]
 
-export function PaletteScreen({ initialState, onNext }: Props) {
+export function PaletteScreen({ initialState, onNext, onBack }: Props) {
   const [selected, setSelected] = useState<Palette | undefined>(
     initialState?.palette,
   )
@@ -49,7 +51,8 @@ export function PaletteScreen({ initialState, onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 5 / 13</span>
+        {onBack && <BackButton onClick={onBack} />}
+        <span className={styles.step}>Шаг 6 / 16</span>
       </header>
 
       <main className={styles.main}>

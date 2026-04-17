@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import type { FlowState, BudgetRange } from '../types/flow'
+import { BackButton } from '../components/BackButton'
 import styles from './BudgetScreen.module.css'
 
 interface Props {
   initialState?: FlowState
   onNext: (update: Partial<FlowState>) => void
+  onBack?: () => void
 }
 
 interface BudgetOption {
@@ -22,7 +24,7 @@ const MAIN_OPTIONS: BudgetOption[] = [
   { value: 'over_35m', label: '35+ млн ₸',      sub: 'Exclusive',           fill: 95 },
 ]
 
-export function BudgetScreen({ initialState, onNext }: Props) {
+export function BudgetScreen({ initialState, onNext, onBack }: Props) {
   const [selected, setSelected] = useState<BudgetRange | undefined>(
     initialState?.budgetRange,
   )
@@ -33,7 +35,8 @@ export function BudgetScreen({ initialState, onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 7 / 13</span>
+        {onBack && <BackButton onClick={onBack} />}
+        <span className={styles.step}>Шаг 7 / 16</span>
       </header>
 
       <main className={styles.main}>

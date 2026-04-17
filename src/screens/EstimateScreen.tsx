@@ -1,9 +1,11 @@
 import type { FlowState, BudgetRange } from '../types/flow'
+import { BackButton } from '../components/BackButton'
 import styles from './EstimateScreen.module.css'
 
 interface Props {
   initialState?: FlowState
   onNext: (update: Partial<FlowState>) => void
+  onBack?: () => void
 }
 
 // Deterministic mock totals by budget range (in millions ₸)
@@ -30,7 +32,7 @@ function formatAmount(n: number): string {
   return n.toLocaleString('ru-RU') + '\u00a0₸'
 }
 
-export function EstimateScreen({ initialState, onNext }: Props) {
+export function EstimateScreen({ initialState, onNext, onBack }: Props) {
   const range  = initialState?.budgetRange ?? 'unsure'
   const total  = TOTAL_BY_RANGE[range]
   const est    = buildEstimate(total)
@@ -45,7 +47,8 @@ export function EstimateScreen({ initialState, onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 10 / 14</span>
+        {onBack && <BackButton onClick={onBack} />}
+        <span className={styles.step}>Шаг 15 / 16</span>
       </header>
 
       <main className={styles.main}>

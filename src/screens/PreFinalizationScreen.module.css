@@ -1,0 +1,166 @@
+.root {
+  --bg:               #131313;
+  --surface:          #201f1f;
+  --primary:          #e9c176;
+  --on-surface:       #e5e2e1;
+  --on-surface-muted: #d1c5b4;
+  --ease-premium:     cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  background: var(--bg);
+  color: var(--on-surface);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 48px 24px;
+}
+
+/* ── Orb (reuse ProcessingScreen pattern) ─────────── */
+.orbWrap {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.orb {
+  width: 100px;
+  height: 100px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orbRing {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(233, 193, 118, 0.2);
+  animation: pulse-ring 2s ease-in-out infinite;
+}
+
+.orbCore {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, rgba(233, 193, 118, 0.5), rgba(197, 160, 89, 0.2));
+  animation: pulse-core 2s ease-in-out infinite;
+}
+
+.orbDone .orbRing {
+  border-color: rgba(233, 193, 118, 0.6);
+  animation: none;
+}
+
+.orbDone .orbCore {
+  background: radial-gradient(circle at 40% 35%, rgba(233, 193, 118, 0.8), rgba(197, 160, 89, 0.5));
+  animation: none;
+}
+
+@keyframes pulse-ring {
+  0%, 100% { opacity: 0.4; transform: scale(0.96); }
+  50%       { opacity: 1;   transform: scale(1.04); }
+}
+
+@keyframes pulse-core {
+  0%, 100% { opacity: 0.7; transform: scale(0.95); }
+  50%       { opacity: 1;   transform: scale(1.05); }
+}
+
+/* ── Text ─────────────────────────────────────────── */
+.intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.headline {
+  margin: 0;
+  font-size: clamp(24px, 6vw, 32px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--on-surface);
+}
+
+.description {
+  margin: 0;
+  font-size: 14px;
+  color: var(--on-surface-muted);
+  line-height: 1.5;
+}
+
+/* ── Step list ────────────────────────────────────── */
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 280px;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0.3;
+  transition: opacity 500ms var(--ease-premium);
+}
+
+.stepDone,
+.stepActive {
+  opacity: 1;
+}
+
+.stepIcon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepLabel {
+  font-size: 14px;
+  color: var(--on-surface-muted);
+  transition: color 400ms var(--ease-premium);
+}
+
+.stepDone .stepLabel { color: var(--on-surface); }
+.stepActive .stepLabel { color: var(--primary); }
+
+.activePulse {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  margin: 0 auto;
+  animation: dot-pulse 1s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(0.85); }
+  50%       { opacity: 1;   transform: scale(1.15); }
+}
+
+@media (min-width: 480px) {
+  .root { max-width: 430px; margin: 0 auto; }
+}

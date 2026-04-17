@@ -5,6 +5,7 @@ import styles from './ProjectTypeScreen.module.css'
 interface Props {
   initialState?: FlowState
   onNext: (update: Partial<FlowState>) => void
+  onBack?: () => void
 }
 
 function NewBuildIcon() {

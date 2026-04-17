@@ -48,6 +48,8 @@ export interface ManualLayoutDraft {
 
 export type ProjectType = 'new_build' | 'resale' | 'commercial'
 
+export type CommercialSubtype = 'office' | 'retail' | 'horeca' | 'industrial' | 'other'
+
 export type Scope = 'full' | 'partial' | 'design_only'
 
 export type LayoutSource = 'upload' | 'manual' | 'later'
@@ -66,9 +68,46 @@ export type BudgetRange =
   | 'over_35m'
   | 'unsure'
 
+export interface PartialSurvey {
+  needsDemolition: boolean
+  needsWallLeveling: boolean
+  needsFloorLeveling: boolean
+  coverageCondition: 'good' | 'fair' | 'poor'
+  localUpdateOnly: boolean
+  affectedRooms: string[]
+}
+
+export interface DeliverySlot {
+  date: string
+  timeSlot: 'morning' | 'afternoon' | 'evening'
+}
+
+// Navigation state machine — all screens in the v2 flow
+export type ScreenId =
+  | 'project_type'
+  | 'commercial_subtype'
+  | 'scope'
+  | 'partial_survey'
+  | 'layout'
+  | 'style'
+  | 'atmosphere'
+  | 'palette'
+  | 'budget'
+  | 'processing'
+  | 'concepts'
+  | 'shop'
+  | 'delivery'
+  | 'team'
+  | 'summary'
+  | 'pre_finalization'
+  | 'estimate'
+  | 'contract'
+
 export interface FlowState {
   projectType?: ProjectType
+  commercialSubtype?: CommercialSubtype
   scope?: Scope
+  partialSurvey?: PartialSurvey
   layoutSource?: LayoutSource
   layoutFile?: LayoutFileMeta
   manualLayout?: ManualLayoutDraft
@@ -96,6 +135,8 @@ export interface FlowState {
     timestamp?: string
     debugSummary?: string
   }
+  selectedShop?: string
+  deliverySlot?: DeliverySlot
   consentAccepted?: boolean
   projectLaunched?: boolean
 }

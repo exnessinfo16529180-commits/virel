@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import type { FlowState } from '../types/flow'
 import { generateConceptImages } from '../services/conceptImages'
 import type { GenerationResult } from '../services/conceptImages'
+import { BackButton } from '../components/BackButton'
 import styles from './ProcessingScreen.module.css'
 
 interface Props {
   initialState?: FlowState
   onNext: (update: Partial<FlowState>) => void
+  onBack?: () => void
 }
 
 const STAGE_LABELS = [
@@ -41,7 +43,7 @@ function PendingIcon() {
   )
 }
 
-export function ProcessingScreen({ initialState, onNext }: Props) {
+export function ProcessingScreen({ initialState, onNext, onBack }: Props) {
   const [completedCount, setCompletedCount] = useState(0)
   const [generationDone, setGenerationDone] = useState(false)
   const generationResultRef = useRef<GenerationResult | null>(null)
@@ -98,7 +100,8 @@ export function ProcessingScreen({ initialState, onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 8 / 13</span>
+        {onBack && !generationDone && <BackButton onClick={onBack} />}
+        <span className={styles.step}>Шаг 8 / 16</span>
       </header>
 
       <main className={styles.main}>

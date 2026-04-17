@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import type { FlowState } from '../types/flow'
+import { BackButton } from '../components/BackButton'
 import styles from './ContractScreen.module.css'
 
 interface Props {
   initialState?: FlowState
   onNext: (update: Partial<FlowState>) => void
+  onBack?: () => void
 }
 
 const INCLUDED = [
@@ -45,7 +47,7 @@ function SuccessOrb() {
   )
 }
 
-export function ContractScreen({ onNext }: Props) {
+export function ContractScreen({ onNext, onBack }: Props) {
   const [consent, setConsent]   = useState(false)
   const [launched, setLaunched] = useState(false)
 
@@ -79,7 +81,8 @@ export function ContractScreen({ onNext }: Props) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.step}>Шаг 13 / 13</span>
+        {onBack && <BackButton onClick={onBack} />}
+        <span className={styles.step}>Шаг 16 / 16</span>
       </header>
 
       <main className={styles.main}>
